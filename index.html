@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#13151b"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon.svg"><title>Director's Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a broadcast desk on a tablet. Header carries tallies + HUSH; body splits into faders | Claude cue desk. Single committed dark look (venue at show time). */
+:root{
+  --bg:#13151b; --panel:#1c1f28; --panel2:#232733; --line:#2e3341;
+  --fg:#ece9e1; --dim:#8e94a4;
+  --red:#ff4040; --yellow:#ffcc3d; --blue:#4a90ff; --ok:#3fd99a;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--body);font-size:15px;line-height:1.45}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 28px;display:grid;gap:14px}
+.lbl{font-family:var(--display);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px;color:var(--dim)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* Header */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.brand{min-width:0;flex:1 1 220px}
+.brand h1{margin:0;font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:.02em;line-height:1}
+.brand p{margin:4px 0 0;color:var(--dim);font-size:13px}
+.tallies{display:flex;gap:8px;flex-wrap:wrap}
+.tally{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);font-family:var(--display);font-weight:600;letter-spacing:.08em;font-size:13px;text-transform:uppercase}
+.tally i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.tally.on-red i{background:var(--red);box-shadow:0 0 10px var(--red)}
+.tally.on-ok i{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.tally.on-blue i{background:var(--blue);box-shadow:0 0 8px var(--blue)}
+.tally.on-yellow i{background:var(--yellow);box-shadow:0 0 8px var(--yellow)}
+.clock{font-size:20px}
+.hush{position:relative;overflow:hidden;min-width:150px;padding:14px 20px;border-radius:10px;border:2px solid var(--red);background:transparent;color:var(--red);font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:.14em;cursor:pointer;touch-action:manipulation}
+.hush small{display:block;font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:.02em;color:var(--fg);opacity:.75}
+.hush.engaged{background:var(--red);color:#1a0000}
+.hush.engaged small{color:#1a0000}
+.hush .hold{position:absolute;left:0;bottom:0;height:4px;width:0;background:var(--fg)}
+
+/* Grid */
+.grid{display:grid;gap:14px;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"strips cue" "scenes cue"}
+@media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"scenes" "cue" "strips"}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.panel>header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.panel h2{margin:0;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase}
+
+/* Strips */
+#strips{grid-area:strips}
+.strip{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4.2rem 4.4rem;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.strip:first-of-type{border-top:0}
+.strip .nm{font-weight:600;line-height:1.15}
+.strip .nm small{display:block;font-weight:400;color:var(--dim);font-size:12px}
+.fadercol{display:grid;gap:6px;min-width:0}
+.meter{height:8px;border-radius:3px;background:var(--panel2);overflow:hidden;position:relative}
+.meter b{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,var(--ok) 0 70%,var(--yellow) 70% 88%,var(--red) 88%)}
+input[type=range]{width:100%;accent-color:var(--fg);margin:0;height:26px}
+.db{text-align:right;font-size:14px}
+.mute{padding:9px 0;border-radius:7px;border:1px solid var(--line);background:var(--panel2);font-family:var(--display);font-weight:700;letter-spacing:.1em;font-size:15px;cursor:pointer}
+.mute.live{border-color:var(--ok);color:var(--ok)}
+.mute.muted{background:var(--red);border-color:var(--red);color:#1a0000}
+.strip.hushed .nm,.strip.hushed .fadercol{opacity:.4}
+@media (max-width:520px){.strip{grid-template-columns:minmax(0,1fr) 4.4rem;grid-template-areas:"nm mute" "fd fd"}.strip .nm{grid-area:nm}.strip .mute{grid-area:mute}.strip .fadercol{grid-area:fd}.strip .db{display:none}.fadercol .dbm{display:block}}
+.dbm{display:none;font-size:12px;color:var(--dim)}
+
+/* Scenes */
+#scenes{grid-area:scenes;display:grid;gap:14px}
+.btnrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.sel{padding:12px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:.05em;cursor:pointer;text-transform:uppercase}
+.sel.active{border-color:var(--yellow);color:var(--yellow);box-shadow:inset 0 0 0 1px var(--yellow)}
+.sel.cam.active{border-color:var(--red);color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.confirm{border:2px solid var(--yellow);border-radius:9px;padding:12px;display:grid;gap:10px;background:color-mix(in srgb,var(--yellow) 8%,var(--panel))}
+.confirm p{margin:0}
+.confirm .row{display:flex;gap:8px;flex-wrap:wrap}
+.act{padding:10px 14px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);font-weight:600;cursor:pointer}
+.act.danger{background:var(--red);border-color:var(--red);color:#1a0000}
+
+/* Cue desk */
+#cue{grid-area:cue;display:grid;gap:12px;align-content:start}
+.who{font-size:13px;color:var(--dim)}
+.who b{color:var(--blue);font-weight:600}
+form.cueform{display:flex;gap:8px}
+#cueInput{flex:1;min-width:0;padding:13px 14px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;font-size:16px}
+#cueInput:focus{border-color:var(--blue);outline:none}
+.go{padding:0 20px;border-radius:9px;border:0;background:var(--blue);color:#06142b;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.1em;cursor:pointer}
+.go[disabled]{opacity:.5}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--blue)}
+.reply{min-height:3.2em;padding:12px 14px;border-radius:9px;background:var(--panel2);border-left:3px solid var(--blue);display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.reply p{margin:0;min-width:0}
+.reply .stop{flex:none;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:transparent;cursor:pointer;font-size:13px}
+.log{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto;display:grid;gap:2px;font-size:13px}
+.log li{display:grid;grid-template-columns:4.6rem 4.4rem minmax(0,1fr);gap:8px;padding:5px 4px;border-bottom:1px solid var(--line)}
+.log .t{color:var(--dim)}
+.log .src{font-family:var(--display);font-weight:700;letter-spacing:.08em}
+.src.DIR{color:var(--yellow)} .src.CLAUDE{color:var(--blue)} .src.CORE{color:var(--ok)} .src.FAIL{color:var(--red)}
+.log .msg{min-width:0;overflow-wrap:anywhere}
+
+footer.foot{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;color:var(--dim);font-size:13px}
+.toggle{display:flex;align-items:center;gap:8px;cursor:pointer}
+.toggle input{width:18px;height:18px;accent-color:var(--yellow)}
+.credit b{color:var(--fg);font-family:var(--display);letter-spacing:.06em;font-weight:600}
+@media (prefers-reduced-motion:reduce){.meter b{transition:none}}
+
+/* Crew */
+.crew{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.crew .lbl{flex:none}
+.people{display:flex;flex-wrap:wrap;gap:6px;flex:1 1 240px;min-width:0}
+.person{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);font-size:13px;max-width:100%}
+.person i{width:8px;height:8px;border-radius:50%;flex:none}
+.person b{font-family:var(--display);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:12px;color:var(--dim)}
+.person.me{border-color:var(--fg)}
+.person span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rolepick{display:flex;align-items:center;gap:8px}
+.rolepick select{padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;font-size:15px}
+.mode{font-size:12px;color:var(--dim)}
+.calls{display:grid;gap:8px}
+.callrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.callbtn{padding:10px 4px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.08em;cursor:pointer;text-transform:uppercase}
+.callbtn.standby{color:var(--yellow);border-color:color-mix(in srgb,var(--yellow) 50%,var(--line))}
+.callbtn.go{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,var(--line))}
+.callbtn.hold{color:var(--red);border-color:color-mix(in srgb,var(--red) 50%,var(--line))}
+form.callform{display:flex;gap:6px}
+#callInput{flex:1;min-width:0;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit}
+.send{padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-weight:600;cursor:pointer}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:min(92vw,560px);padding:14px 18px;border-radius:10px;background:var(--fg);color:var(--bg);font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:20;display:flex;gap:10px;align-items:baseline}
+.toast small{font-family:var(--display);letter-spacing:.08em;text-transform:uppercase;font-weight:700;opacity:.7}
+.src.CALL{color:var(--fg)}
+[disabled]{cursor:not-allowed}
+.readonly .strip input,.readonly .mute,.readonly .sel{opacity:.55}
+/* Call sheet */
+#sheet{display:grid;gap:12px}
+.mycard{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 14px;border-radius:9px;border:2px solid var(--yellow);background:color-mix(in srgb,var(--yellow) 7%,var(--panel))}
+.mycard .big{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.03em}
+.mycard .duty{color:var(--dim);flex:1 1 200px;min-width:0}
+.sheetmeta{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.sheetmeta label{display:flex;align-items:center;gap:8px}
+.sheetmeta input{padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit}
+.rows{display:grid;gap:6px}
+.row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr) minmax(0,1.6fr) auto;gap:8px;align-items:center;padding:8px;border-radius:8px;background:var(--panel2);border:1px solid var(--line)}
+.row input,.row select{width:100%;min-width:0;padding:9px 10px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;font-size:15px}
+.row .nm2{font-weight:600;display:flex;align-items:center;gap:7px;min-width:0}
+.row .nm2 i{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.row .nm2 i.on{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+.row .rl{font-family:var(--display);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.row .dt{color:var(--dim);min-width:0;overflow-wrap:anywhere}
+.row.mine{border-color:var(--yellow)}
+.rowact{display:flex;gap:6px;align-items:center;justify-content:flex-end}
+.claim{padding:8px 12px;border-radius:7px;border:1px solid var(--yellow);background:transparent;color:var(--yellow);font-weight:600;cursor:pointer;white-space:nowrap}
+.claimed{font-size:12px;color:var(--ok);white-space:nowrap}
+.x{width:34px;height:34px;border-radius:7px;border:1px solid var(--line);background:transparent;cursor:pointer;color:var(--dim)}
+.sheetact{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+.sheetact .go{padding:12px 18px;font-size:18px}
+@media (max-width:640px){.row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}.row .dtcell{grid-column:1/-1}.row .rowact{grid-column:1/-1;justify-content:flex-start}}
+/* Multiviewer */
+.mv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{position:relative;padding:0;border-radius:8px;border:3px solid var(--line);background:#000;cursor:pointer;overflow:hidden;aspect-ratio:16/9;max-width:100%}
+.tile canvas{display:block;width:100%;height:100%}
+.tile .tl{position:absolute;left:6px;bottom:5px;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px #000}
+.tile .tg{position:absolute;right:6px;top:5px;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.1em;padding:1px 6px;border-radius:3px;background:var(--red);color:#1a0000}
+.tile.pgm{border-color:var(--red)}
+.tile[disabled]{cursor:not-allowed}
+@media (max-width:520px){.mv{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.tile .tl{font-size:11px}}
+.simnote{font-size:12px;color:var(--dim);margin:8px 0 0}
+/* Headphones */
+.pfl{padding:9px 0;border-radius:7px;border:1px solid var(--line);background:var(--panel2);font-family:var(--display);font-weight:700;letter-spacing:.08em;font-size:14px;cursor:pointer;color:var(--dim)}
+.pfl.on{background:var(--yellow);border-color:var(--yellow);color:#1f1600}
+.phones{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.phones input{width:110px}
+.phones .act{padding:6px 10px;font-size:13px}
+
+.strip{grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4.2rem 3.6rem 4.4rem}
+@media (max-width:520px){.strip{grid-template-columns:minmax(0,1fr) 3.6rem 4.4rem;grid-template-areas:"nm pfl mute" "fd fd fd"}.strip .pfl{grid-area:pfl}}
+/* Mute / live button motion */
+.mute{display:grid;place-items:center;position:relative}
+.mute>span{grid-area:1/1}
+.mute.muted{--red2:#b3121f;background:var(--red);border-color:var(--red);color:#1a0000;animation:redPulse 2.6s ease-in-out infinite}
+.mute.muted .b{opacity:0}
+.mute.muted .a{animation:showA 2.6s ease-in-out infinite}
+.mute.muted .b{animation:showB 2.6s ease-in-out infinite}
+@keyframes redPulse{0%,100%{background:var(--red);border-color:var(--red)}50%{background:var(--red2);border-color:var(--red2)}}
+@keyframes showA{0%,40%{opacity:1}50%,90%{opacity:0}100%{opacity:1}}
+@keyframes showB{0%,40%{opacity:0}50%,90%{opacity:1}100%{opacity:0}}
+.mute.live{background:var(--ok);border-color:var(--ok);color:#03210f;animation:fillIn .55s ease-out both,greenGlow 3s ease-in-out .55s infinite}
+@keyframes fillIn{from{background:transparent;color:var(--ok)}to{background:var(--ok);color:#03210f}}
+@keyframes greenGlow{0%,100%{box-shadow:0 0 0 0 rgba(63,217,154,0)}50%{box-shadow:0 0 12px 2px rgba(63,217,154,.55)}}
+@media (prefers-reduced-motion:reduce){.mute.muted,.mute.muted .a,.mute.muted .b,.mute.live{animation:none}.mute.muted .b{opacity:0}}
+/* Muted: two words, apart, taking turns */
+.mute.muted{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 0;color:#fff}
+.mute.muted>span{grid-area:auto;font-size:12px;line-height:1;letter-spacing:.1em;color:#fff}
+.mute.muted .a{animation:turnA 2.6s ease-in-out infinite}
+.mute.muted .b{animation:turnB 2.6s ease-in-out infinite;opacity:.3}
+@keyframes turnA{0%,40%{opacity:1}50%,90%{opacity:.3}100%{opacity:1}}
+@keyframes turnB{0%,40%{opacity:.3}50%,90%{opacity:1}100%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.mute.muted .a{animation:none;opacity:1}.mute.muted .b{animation:none;opacity:.55}}
+/* Console keycaps: every button gets a 3D cap that presses in */
+.mute,.pfl,.sel,.callbtn,.act,.go,.send,.claim,.chip,.x,.stop,.hush{
+  background-image:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.04) 42%,rgba(0,0,0,.22) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -2px 0 rgba(0,0,0,.35),0 3px 0 #07080b,0 5px 10px rgba(0,0,0,.45);
+  transition:transform .06s ease,box-shadow .06s ease;
+  text-shadow:0 1px 1px rgba(0,0,0,.45)}
+.mute:active:not([disabled]),.pfl:active:not([disabled]),.sel:active:not([disabled]),.callbtn:active,.act:active,.go:active:not([disabled]),.send:active,.claim:active,.chip:active,.x:active,.stop:active,.hush:active{
+  transform:translateY(3px);
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.55),inset 0 -1px 0 rgba(255,255,255,.08),0 0 0 #07080b,0 1px 2px rgba(0,0,0,.4)}
+.sel.active{box-shadow:inset 0 0 0 1px var(--yellow),inset 0 1px 0 rgba(255,255,255,.22),0 3px 0 #07080b,0 5px 10px rgba(0,0,0,.45)}
+.hush.engaged{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -2px 0 rgba(0,0,0,.35),0 3px 0 #3a0000,0 0 18px rgba(255,64,64,.55)}
+.pfl.on{text-shadow:none}
+/* Muted: colour pulse on background-color so the keycap shading stays */
+.mute.muted{animation:redPulse2 2.6s ease-in-out infinite}
+@keyframes redPulse2{0%,100%{background-color:var(--red);border-color:var(--red)}50%{background-color:#b3121f;border-color:#b3121f}}
+/* Live: fills in, then breathes dark green to bright green, white text */
+.mute.live{background-color:var(--ok);border-color:#1f9e69;color:#fff;animation:fillIn2 .5s ease-out both,liveFlash 2.6s ease-in-out .5s infinite}
+.mute.live>span{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.55)}
+@keyframes fillIn2{from{background-color:transparent}to{background-color:var(--ok)}}
+@keyframes liveFlash{0%,100%{background-color:#3fd99a}50%{background-color:#0f7a4b}}
+@media (prefers-reduced-motion:reduce){.mute.muted,.mute.live{animation:none}.mute,.pfl,.sel,.callbtn,.act,.go,.send,.claim,.chip,.x,.stop,.hush{transition:none}}
+.mute.muted,.mute.live,.pfl.on,.act.danger,.hush.engaged,.sel.active,.callbtn.go{background-image:linear-gradient(180deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.05) 42%,rgba(0,0,0,.25) 100%)}
+/* Bigger button text */
+.mute{font-size:18px;min-height:52px}
+.mute.muted>span,.mute.live>span{font-size:15px}
+.pfl{font-size:17px;min-height:52px}
+.sel{font-size:20px}
+.callbtn{font-size:19px}
+.act{font-size:16px}
+.go{font-size:23px}
+.chip{font-size:15px}
+.claim{font-size:15px}
+/* Live: deep green cap, bright green letters taking turns LIVE / MUTE */
+.mute.live{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 0;background-color:#0b5c39;border-color:#0f7a4b;animation:fillIn3 .5s ease-out both}
+@keyframes fillIn3{from{background-color:transparent}to{background-color:#0b5c39}}
+.mute.live>span{grid-area:auto;line-height:1;letter-spacing:.1em;color:#5dffb4;text-shadow:0 0 8px rgba(93,255,180,.75)}
+.mute.live .a{animation:onOffA 1.6s steps(1,end) infinite}
+.mute.live .b{animation:onOffB 1.6s steps(1,end) infinite}
+@keyframes onOffA{0%{opacity:1}50%{opacity:.18}}
+@keyframes onOffB{0%{opacity:.18}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.mute.live,.mute.live .a,.mute.live .b{animation:none}.mute.live .b{opacity:.45}}
+@media (max-width:520px){.mute.muted>span,.mute.live>span{font-size:13px}.mute{font-size:16px}}
+/* ===== Backlit lamp buttons: square lenses lit from behind, like old machine panels ===== */
+#app .mute,#app .pfl,#app .sel,#app .callbtn,#app .act,#app .go,#app .send,#app .claim,#app .chip,#app .x,#app .stop{
+  --lamp:#ece9e1;
+  border-radius:4px;border:2px solid #050608;
+  background-color:#14161d;
+  background-image:radial-gradient(ellipse at 50% 38%,rgba(255,255,255,.07),rgba(0,0,0,0) 55%),linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.35));
+  color:color-mix(in srgb,var(--lamp) 62%,#14161d);
+  text-shadow:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),inset 0 -3px 6px rgba(0,0,0,.55),0 3px 0 #050608,0 5px 10px rgba(0,0,0,.5)}
+/* lamp colours */
+#app .pfl,#app .sel,#app .callbtn.standby{--lamp:#ffcc3d}
+#app .callbtn.go,#app .mute.live{--lamp:#3fd99a}
+#app .callbtn.hold,#app .mute.muted,#app .act.danger{--lamp:#ff4040}
+#app .go:not(.callbtn),#app .claim{--lamp:#4a90ff}
+/* lit state: glow from behind, hot centre, bloom around the lens */
+#app .mute.muted,#app .mute.live,#app .pfl.on,#app .sel.active,#app .act.danger,#app .go:not([disabled]):not(.callbtn){
+  background-color:var(--lamp);
+  background-image:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.6),rgba(255,255,255,.12) 45%,rgba(0,0,0,.18) 100%);
+  color:#fff;
+  text-shadow:0 0 6px rgba(255,255,255,.9),0 0 2px rgba(0,0,0,.6);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),inset 0 -3px 6px rgba(0,0,0,.3),0 3px 0 #050608,0 0 16px 2px color-mix(in srgb,var(--lamp) 70%,transparent)}
+#app .sel.cam{--lamp:#ff4040}
+/* momentary keys light while held */
+#app .callbtn:active,#app .act:not(.danger):active,#app .send:active,#app .chip:active,#app .claim:active{
+  background-color:var(--lamp);color:#fff;text-shadow:0 0 6px rgba(255,255,255,.9);
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.4),0 0 16px 2px color-mix(in srgb,var(--lamp) 70%,transparent);transform:translateY(3px)}
+#app .mute:active:not([disabled]),#app .pfl:active:not([disabled]),#app .sel:active:not([disabled]),#app .go:not(.callbtn):active:not([disabled]){transform:translateY(3px)}
+/* text inside the two-word lamps */
+#app .mute.muted>span,#app .mute.live>span{color:#fff;text-shadow:0 0 6px rgba(255,255,255,.95),0 0 2px rgba(0,0,0,.7)}
+#app .mute.live{animation:liveLamp 1.6s steps(1,end) infinite}
+#app .mute.muted{animation:mutedLamp 2.6s ease-in-out infinite}
+@keyframes liveLamp{0%{background-color:#3fd99a}50%{background-color:#14995f}}
+@keyframes mutedLamp{0%,100%{background-color:#ff4040}50%{background-color:#b3121f}}
+#app .mute.live .a,#app .mute.live .b{animation-duration:1.6s}
+/* a notch bigger */
+#app .mute{font-size:19px;min-height:56px}
+#app .mute.muted>span,#app .mute.live>span{font-size:16px}
+#app .pfl{font-size:18px;min-height:56px}
+#app .sel{font-size:21px}
+#app .callbtn{font-size:20px}
+#app .act{font-size:17px}
+#app .go:not(.callbtn){font-size:24px}
+#app .chip{font-size:16px}
+#app .claim,#app .send{font-size:16px}
+#app .hush{border-radius:4px}
+@media (max-width:520px){#app .mute.muted>span,#app .mute.live>span{font-size:14px}#app .mute{font-size:17px}}
+@media (prefers-reduced-motion:reduce){#app .mute.live,#app .mute.muted{animation:none}}
+/* Embossed lettering */
+#app .mute,#app .pfl,#app .sel,#app .callbtn,#app .act,#app .go,#app .send,#app .claim,#app .chip,#app .x,#app .stop,#app .hush{font-weight:700}
+#app .mute,#app .pfl,#app .sel,#app .callbtn,#app .act,#app .go,#app .send,#app .claim,#app .chip,#app .x,#app .stop{
+  color:color-mix(in srgb,var(--lamp) 85%,#fff);
+  text-shadow:0 -1px 0 rgba(0,0,0,.95),0 1px 0 rgba(255,255,255,.22),0 0 6px color-mix(in srgb,var(--lamp) 45%,transparent)}
+#app .mute.muted,#app .mute.live,#app .pfl.on,#app .sel.active,#app .act.danger,#app .go:not([disabled]):not(.callbtn),
+#app .mute.muted>span,#app .mute.live>span,
+#app .callbtn:active,#app .act:not(.danger):active,#app .send:active,#app .chip:active,#app .claim:active{
+  color:#fff;
+  text-shadow:0 -1px 0 rgba(255,255,255,.55),0 1px 0 rgba(0,0,0,.75),0 2px 0 rgba(0,0,0,.55),0 3px 4px rgba(0,0,0,.55)}
+#app .hush{text-shadow:0 -1px 0 rgba(0,0,0,.9),0 1px 0 rgba(255,255,255,.2)}
+#app .hush.engaged{text-shadow:0 -1px 0 rgba(255,255,255,.5),0 1px 0 rgba(0,0,0,.7),0 2px 3px rgba(0,0,0,.5);color:#fff}
+#app .hush.engaged small{color:#fff}
+/* Momentary keys: lit only while the finger is down (JS adds .pressed) */
+#app .callbtn:active,#app .act:not(.danger):active,#app .send:active,#app .chip:active,#app .claim:active{transform:none;background-color:#14161d;color:color-mix(in srgb,var(--lamp) 85%,#fff);text-shadow:0 -1px 0 rgba(0,0,0,.95),0 1px 0 rgba(255,255,255,.22);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),inset 0 -3px 6px rgba(0,0,0,.55),0 3px 0 #050608,0 5px 10px rgba(0,0,0,.5)}
+#app .callbtn.pressed,#app .act:not(.danger).pressed,#app .send.pressed,#app .chip.pressed,#app .claim.pressed{
+  transform:translateY(3px);background-color:var(--lamp);color:#fff;
+  text-shadow:0 -1px 0 rgba(255,255,255,.55),0 1px 0 rgba(0,0,0,.75),0 2px 0 rgba(0,0,0,.55);
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.4),0 0 16px 2px color-mix(in srgb,var(--lamp) 70%,transparent)}
+/* Scene keys: keep long names inside the lens */
+#presetRow{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+#app .sel{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-inline:6px;letter-spacing:.03em}
+#app #presetRow .sel{font-size:clamp(16px,4.6vw,20px)}
+/* Camera tiles: label top-left so it never sits on the picture's lower third */
+.tile .tl{top:5px;bottom:auto;background:rgba(0,0,0,.55);padding:1px 6px;border-radius:3px}
+
+/* keep the calls/cue column inside the panel on phones */
+#cue,.calls{grid-template-columns:minmax(0,1fr)}
+.callrow>*{min-width:0}
+@media (max-width:520px){#app .callbtn{font-size:16px;letter-spacing:.04em;padding-inline:2px}}
+
+/* keep UNMUTE inside the key; roomier toast */
+#app .mute.muted>span,#app .mute.live>span{letter-spacing:.04em}
+.strip{grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4.2rem 3.6rem 5.2rem}
+@media (max-width:520px){.strip{grid-template-columns:minmax(0,1fr) 3.6rem 5.2rem}#app .mute.muted>span,#app .mute.live>span{font-size:14px}}
+.toast{width:min(92vw,440px)}
+
+/* Call sheet keys: Add crew member in blue, same size as Send */
+.sheetact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.sheetact{grid-template-columns:minmax(0,1fr)}}
+#app #addRow,#app #sendSheet{width:100%;min-height:56px;padding:12px 10px;font-family:var(--display);font-size:22px;letter-spacing:.08em;text-transform:uppercase}
+#app #addRow{--lamp:#4a90ff;background-color:#1b4a94;border-color:#050608;color:#d9eaff;
+  background-image:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.18),rgba(255,255,255,0) 60%),linear-gradient(180deg,rgba(255,255,255,.12),rgba(0,0,0,.3));
+  text-shadow:0 -1px 0 rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.25)}
+#app #addRow.pressed{background-color:#4a90ff;color:#fff}
+
+/* Matching pair: navy with sky-blue letters, dark purple with yellow letters */
+#app #addRow,#app #sendSheet{border-color:#050608;
+  background-image:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.14),rgba(255,255,255,0) 60%),linear-gradient(180deg,rgba(255,255,255,.1),rgba(0,0,0,.32));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 -3px 6px rgba(0,0,0,.5),0 3px 0 #050608,0 0 14px 1px color-mix(in srgb,var(--lamp) 35%,transparent)}
+#app #addRow{--lamp:#5cc8ff;background-color:#0f2147;color:#7fd6ff;text-shadow:0 -1px 0 rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.18),0 0 8px rgba(92,200,255,.55)}
+#app #sendSheet{--lamp:#ffcc3d;background-color:#2e1250;color:#ffd84d;text-shadow:0 -1px 0 rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.18),0 0 8px rgba(255,204,61,.5)}
+#app #addRow.pressed{background-color:#1a3a7a;color:#bfeaff;transform:translateY(3px)}
+#app #sendSheet:active{background-color:#4a1f80;transform:translateY(3px)}
+
+/* locked for your role: dimmed, still tappable so it can explain */
+#app .locked{opacity:.4;filter:saturate(.4)}
+#app .tile.locked{opacity:.75}
+#owns{color:var(--yellow)}
+
+/* Cue light keys latch: lit from behind while active */
+#app .callbtn.on{background-color:var(--lamp);color:#fff;
+  background-image:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.6),rgba(255,255,255,.12) 45%,rgba(0,0,0,.18) 100%);
+  text-shadow:0 -1px 0 rgba(255,255,255,.55),0 1px 0 rgba(0,0,0,.75),0 2px 0 rgba(0,0,0,.55),0 3px 4px rgba(0,0,0,.55);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),inset 0 -3px 6px rgba(0,0,0,.3),0 3px 0 #050608,0 0 18px 3px color-mix(in srgb,var(--lamp) 75%,transparent);transform:translateY(2px)}
+#app .callbtn.blink{animation:cueBlink 1.2s steps(1,end) infinite}
+@keyframes cueBlink{0%{filter:none}50%{filter:brightness(.45) saturate(.7)}}
+@media (prefers-reduced-motion:reduce){#app .callbtn.blink{animation:none}}
+
+/* HUSH banner + reliable hold on touch */
+#app .hush,#app .release{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.hushbanner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:12px 14px;border-radius:10px;border:2px solid var(--red);background:color-mix(in srgb,var(--red) 18%,var(--panel));animation:hushPulse 1.6s ease-in-out infinite}
+.hushbanner span{min-width:0;flex:1 1 220px}
+.hushbanner b{color:#fff;font-family:var(--display);letter-spacing:.08em;font-size:18px}
+@keyframes hushPulse{0%,100%{border-color:var(--red)}50%{border-color:#7a1018}}
+#app .release{position:relative;overflow:hidden;--lamp:#ff4040;min-height:52px;padding:10px 18px;border-radius:4px;border:2px solid #050608;background-color:var(--red);color:#fff;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+  text-shadow:0 -1px 0 rgba(255,255,255,.5),0 1px 0 rgba(0,0,0,.7),0 2px 3px rgba(0,0,0,.5);
+  background-image:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.45),rgba(255,255,255,.08) 50%,rgba(0,0,0,.2));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.3),0 3px 0 #050608,0 0 16px 2px rgba(255,64,64,.5)}
+#app .release .hold{position:absolute;left:0;bottom:0;height:6px;width:0;background:#fff}
+@media (prefers-reduced-motion:reduce){.hushbanner{animation:none}}
+/* ===== Desktop console: one landscape screen, no page scrolling ===== */
+.sheetbtn,.keys{display:none}
+@media (min-width:1100px) and (min-height:620px){
+  html,body{height:100%;overflow:hidden}
+  #app{height:100%;max-width:none;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto minmax(0,1fr) auto;gap:10px;padding-block:10px}
+  #app .bar{padding:8px 14px}
+  .brand h1{font-size:30px}
+  .crew{padding:6px 14px}
+  .sheetbtn{display:inline-flex;align-items:center;margin-left:auto;min-height:40px;padding:0 16px;border-radius:4px;border:2px solid #050608;cursor:pointer;
+    background:#2e1250;color:#ffd84d;font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.08em;text-transform:uppercase;
+    text-shadow:0 -1px 0 rgba(0,0,0,.85),0 0 8px rgba(255,204,61,.5);box-shadow:0 3px 0 #050608,0 0 12px rgba(255,204,61,.2)}
+  /* call sheet becomes a drawer */
+  #sheet{position:fixed;z-index:25;top:0;right:0;bottom:0;width:min(640px,46vw);overflow:auto;border-radius:0;border-width:0 0 0 2px;border-color:#050608;
+    box-shadow:-20px 0 50px rgba(0,0,0,.6);transform:translateX(105%);transition:transform .3s ease;padding:18px}
+  body.sheetOpen #sheet{transform:none}
+  /* three-column console */
+  .grid{min-height:0;grid-template-columns:minmax(0,1.05fr) minmax(0,1.35fr) minmax(0,1fr);grid-template-areas:"strips scenes cue";grid-template-rows:minmax(0,1fr)}
+  .grid>*{min-height:0}
+  #strips{display:flex;flex-direction:column;min-height:0}
+  #strips>header{flex:none}
+  /* vertical channel strips */
+  #stripList{flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+  #app .strip{border-top:0;padding:8px 4px;border-radius:8px;background:#171a22;border:1px solid var(--line);
+    grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto auto;grid-template-areas:"nm" "fd" "db" "pfl" "mute";gap:8px;align-items:stretch;min-height:0}
+  #app .strip .nm{grid-area:nm;text-align:center;font-size:14px;min-height:2.4em}
+  #app .strip .nm small{font-size:11px}
+  #app .strip .fadercol{grid-area:fd;display:flex;justify-content:center;align-items:stretch;gap:10px;min-height:0}
+  #app .strip .db{grid-area:db;display:block;text-align:center}
+  #app .strip .dbm{display:none}
+  #app .strip .pfl{grid-area:pfl;min-height:44px}
+  #app .strip .mute{grid-area:mute;min-height:58px}
+  .meter{width:10px;height:auto;border-radius:3px}
+  .meter b{inset:auto 0 0 0!important;width:100%!important;height:var(--lv,0%);background:linear-gradient(0deg,var(--ok) 0 70%,var(--yellow) 70% 88%,var(--red) 88%)}
+  #app .strip input[type=range]{writing-mode:vertical-lr;direction:rtl;width:42px;height:auto;margin:0;-webkit-appearance:none;appearance:none;background:transparent;cursor:ns-resize}
+  #app .strip input[type=range]::-webkit-slider-runnable-track{width:6px;border-radius:3px;background:#05060a;box-shadow:inset 0 0 0 1px #2e3341}
+  #app .strip input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:40px;height:22px;margin-left:-17px;border-radius:3px;border:1px solid #050608;
+    background:linear-gradient(180deg,#d9d6cf 0,#9b988f 45%,#ece9e1 50%,#8a877f 55%,#bdbab2 100%);box-shadow:0 3px 6px rgba(0,0,0,.6)}
+  #app .strip input[type=range]::-moz-range-track{width:6px;background:#05060a;border-radius:3px}
+  #app .strip input[type=range]::-moz-range-thumb{width:40px;height:22px;border-radius:3px;border:1px solid #050608;background:linear-gradient(180deg,#d9d6cf,#8a877f)}
+  /* center: big program monitor */
+  #scenes{min-height:0;overflow:auto;align-content:start}
+  .mv{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tile.pgm{grid-column:1/-1;order:-1;border-width:4px}
+  .tile .tl{font-size:15px}.tile.pgm .tl,.tile.pgm .tg{font-size:18px}
+  #presetRow{grid-template-columns:repeat(4,minmax(0,1fr))}
+  /* right: calls, cue Claude, log fills the rest */
+  #cue{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  #cue>div:last-child{flex:1;min-height:0;display:flex;flex-direction:column}
+  .log{flex:1;max-height:none;min-height:0}
+  .keys{display:inline;color:var(--dim)}
+  .keys b{color:var(--yellow);font-family:var(--display);letter-spacing:.08em;margin-right:6px}
+  .foot{font-size:12px}
+  .hushbanner{padding:8px 14px}
+}
+@media (min-width:1100px) and (min-height:620px) and (prefers-reduced-motion:reduce){#sheet{transition:none}}
+
+[hidden]{display:none!important}
+@media (min-width:1100px) and (min-height:620px){
+  #app .strip .mute{font-size:15px}
+  #app .strip .mute.muted>span,#app .strip .mute.live>span{font-size:13px;letter-spacing:.01em}
+  #app #presetRow .sel{font-size:17px;letter-spacing:.02em;padding-inline:4px}
+  #app .callbtn{font-size:16px;letter-spacing:.03em;padding-inline:2px}
+  /* program 2x2, previews stacked beside it */
+  .mv{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .tile.pgm{grid-column:span 2;grid-row:span 2}
+  #cue{gap:8px}
+  #cue .chips{gap:5px}
+  #app .chip{font-size:13px;padding:5px 8px;min-height:0}
+  #cue .who{font-size:12px}
+  .log{min-height:120px}
+  #cue>header{margin-bottom:2px}
+}
+
+@media (min-width:1100px) and (min-height:620px){
+  #app .panel h2{white-space:nowrap}
+  #cue>header{flex-wrap:nowrap}
+}
+@media (min-width:1100px) and (min-height:620px) and (max-height:860px){
+  #app{gap:8px;padding-block:8px}
+  #app .bar{padding:6px 12px}
+  .brand h1{font-size:24px}.brand p{font-size:12px}
+  #app .hush{padding:8px 16px;font-size:20px;min-width:130px}
+  #app .panel{padding:10px}
+  .simnote,#cue .who{display:none}
+  #app .strip .pfl{min-height:38px}
+  #app .strip .mute{min-height:50px}
+  #app .strip .nm{font-size:13px;min-height:2.2em}
+  #app .strip .nm small{display:none}
+  #app #streamStart,#app #streamEnd{min-height:44px;font-size:18px;padding-block:6px}
+  #app #presetRow .sel{padding-block:8px}
+  #app .callbtn{padding-block:8px}
+  #cue .chips{max-height:62px;overflow:hidden}
+  .log{min-height:90px}
+  #app .go:not(.callbtn){font-size:20px}
+  #cueInput{padding:9px 12px}
+}
+
+@media (min-width:1100px) and (min-height:620px){
+  #app{grid-template-areas:"bar" "banner" "crew" "main" "foot";row-gap:0}
+  #app>.bar{grid-area:bar;margin-bottom:8px}
+  #app>.hushbanner{grid-area:banner;margin-bottom:8px}
+  #app>.crew{grid-area:crew;margin-bottom:8px}
+  #app>.grid{grid-area:main}
+  #app>.foot{grid-area:foot;margin-top:8px}
+}
+
+@media (min-width:1100px) and (min-height:620px){
+  #app>.crew{flex-wrap:nowrap}
+  #app>.crew .people{flex:1 1 auto;min-width:0;flex-wrap:nowrap;overflow:hidden}
+  #app>.crew #mode{display:none}
+  #app>.crew #owns{white-space:nowrap}
+  #app>.foot{flex-wrap:nowrap;gap:16px;white-space:nowrap;overflow:hidden}
+  #app>.foot .credit{margin-left:auto}
+}
+@media (min-width:1100px) and (min-height:620px) and (max-height:860px){
+  #app>.hushbanner{padding:6px 12px}
+  #app .release{min-height:40px;font-size:17px;padding-block:4px}
+  #app>.crew{padding:4px 12px}
+  #app .rolepick select{padding:5px 8px}
+  #app .sheetbtn{min-height:34px}
+  #app>.foot .toggle{display:none}
+}
+@media (min-width:1100px) and (min-height:620px) and (max-height:800px){
+  #cue .chips{display:none}
+}
+
+@media (min-width:1100px) and (min-height:620px) and (max-height:980px){
+  #cue .who{display:none}
+  #cue .chips{max-height:58px;overflow:hidden}
+}
+/* v21: nothing truncated, nothing half-clipped on any landscape screen */
+@media (min-width:1100px) and (min-height:620px){
+  #app #presetRow .sel{font-size:clamp(10.5px,.98vw,18px);letter-spacing:0;text-overflow:clip;padding-inline:2px}
+  #app .callbtn{font-size:clamp(12px,1.02vw,17px);letter-spacing:0}
+  #app .strip .nm{font-size:clamp(10px,.82vw,14px);letter-spacing:-.01em}
+  #app .strip .nm small{font-size:clamp(9px,.72vw,11px)}
+  #app .strip .mute{font-size:clamp(11px,.95vw,15px);padding-inline:2px}
+  #app .strip .mute.muted>span,#app .strip .mute.live>span{font-size:clamp(8.5px,.8vw,13px);letter-spacing:0}
+  #cue .chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible}
+  #app #cue .chip{white-space:normal;text-align:left;line-height:1.2;font-size:clamp(11px,.85vw,13px)}
+}
+@media (min-width:1100px) and (min-height:620px) and (max-height:800px){#cue .chips{display:none}}
+@media (min-width:1100px) and (max-width:1250px) and (min-height:620px){.grid{grid-template-columns:minmax(0,1.2fr) minmax(0,1.25fr) minmax(0,1fr)}#stripList{gap:5px}#app .strip{padding-inline:2px}#app #presetRow .sel{font-size:10px}#presetRow{gap:6px}}
+
+
+/* floating badge */
+#wcBadge{position:fixed;left:0;top:0;z-index:30;width:72px;height:72px;border:0;padding:0;background:none;cursor:pointer;border-radius:50%;
+  touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;will-change:transform;filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
+#wcBadge svg{width:100%;height:100%;display:block;overflow:visible}
+#wcBadge .rim{transform-origin:44px 44px;animation:wcSpin 22s linear infinite}
+#wcBadge .flow{stroke-dasharray:14 46;animation:wcFlow 3.6s linear infinite}
+#wcBadge.go2 svg{animation:wcGo .55s}
+#wcBadge{cursor:grab}
+@keyframes wcSpin{to{transform:rotate(360deg)}}
+@keyframes wcFlow{to{stroke-dashoffset:-60}}
+@keyframes wcGo{50%{transform:scale(1.22)}}
+#wcTip{position:fixed;z-index:31;background:#fff;color:#111;font:700 13px/1.3 var(--body);padding:8px 12px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.45);pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap}
+#wcTip.show{opacity:1}
+@media (prefers-reduced-motion:reduce){#wcBadge .rim,#wcBadge .flow{animation:none}}
+
+/* ===== v22 multi-screen: one part of the desk per window · portrait monitors · one mouse across all ===== */
+body[data-screen]:not([data-screen="all"]) #app{max-width:none}
+body[data-screen]:not([data-screen="all"]) #app>.crew{flex-wrap:wrap;row-gap:6px}
+body[data-screen]:not([data-screen="all"]) #app .grid{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);grid-template-areas:none}
+body[data-screen]:not([data-screen="all"]) #app .grid>section{grid-area:auto;grid-column:1;grid-row:1}
+body[data-screen="audio"] #app #scenes,body[data-screen="audio"] #app #cue,
+body[data-screen="picture"] #app #strips,body[data-screen="picture"] #app #cue,
+body[data-screen="calls"] #app #strips,body[data-screen="calls"] #app #scenes{display:none}
+/* Audio screen: five tall strips, long throw faders */
+body[data-screen="audio"] #app #stripList{gap:12px}
+body[data-screen="audio"] #app .strip{padding:12px 6px;gap:12px}
+body[data-screen="audio"] #app .strip .nm{font-size:22px;min-height:2.6em;letter-spacing:0}
+body[data-screen="audio"] #app .strip .nm small{display:block;font-size:14px}
+body[data-screen="audio"] #app .strip .db{font-size:20px}
+body[data-screen="audio"] #app .strip .pfl{min-height:66px;font-size:24px}
+body[data-screen="audio"] #app .strip .mute{min-height:92px;font-size:20px}
+body[data-screen="audio"] #app .strip .mute.muted>span,body[data-screen="audio"] #app .strip .mute.live>span{font-size:18px;letter-spacing:.04em}
+body[data-screen="audio"] #app .meter{width:16px}
+body[data-screen="audio"] #app .strip input[type=range]{width:66px}
+body[data-screen="audio"] #app .strip input[type=range]::-webkit-slider-thumb{width:64px;height:34px;margin-left:-29px}
+body[data-screen="audio"] #app .strip input[type=range]::-moz-range-thumb{width:64px;height:34px}
+/* Picture screen: program on top, previews under it, scenes and stream as big keys */
+body[data-screen="picture"] #app #scenes{display:flex;flex-direction:column;gap:12px;overflow:auto}
+body[data-screen="picture"] #app .mv{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+body[data-screen="picture"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
+body[data-screen="picture"] #app .tile .tl{font-size:22px}
+body[data-screen="picture"] #app .tile.pgm .tl,body[data-screen="picture"] #app .tile.pgm .tg{font-size:30px}
+body[data-screen="picture"] #app #presetRow{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+body[data-screen="picture"] #app #presetRow .sel{font-size:28px;min-height:80px;letter-spacing:.05em}
+body[data-screen="picture"] #app #streamStart,body[data-screen="picture"] #app #streamEnd{font-size:28px;min-height:80px}
+body[data-screen="picture"] #app .simnote{display:block}
+/* Calls & Claude screen: cue lights as big keys, chips and log readable from a step back */
+body[data-screen="calls"] #app .callbtn{font-size:26px;min-height:84px;letter-spacing:.05em}
+body[data-screen="calls"] #app #callInput,body[data-screen="calls"] #app #cueInput{font-size:20px;padding:14px}
+body[data-screen="calls"] #app #goBtn{font-size:28px;min-width:110px}
+body[data-screen="calls"] #app #cue .chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;gap:8px}
+body[data-screen="calls"] #app #cue .chip{font-size:18px;padding:12px 14px}
+body[data-screen="calls"] #app #cue .who{display:block;font-size:15px}
+body[data-screen="calls"] #app #reply{font-size:20px}
+body[data-screen="calls"] #app .log{font-size:16px}
+#app .screenpick select{font-weight:700}
+#app .log{align-content:start}
+@media (max-height:1700px){
+  body[data-screen="picture"] #app #presetRow{grid-template-columns:repeat(4,minmax(0,1fr))}
+  body[data-screen="picture"] #app #presetRow .sel{font-size:clamp(14px,2.2vw,26px);min-height:64px;letter-spacing:.02em}
+  body[data-screen="picture"] #app #streamStart,body[data-screen="picture"] #app #streamEnd{min-height:64px;font-size:24px}
+  body[data-screen="picture"] #app .simnote{display:none}
+  body[data-screen="audio"] #app .strip .mute{min-height:76px}
+  body[data-screen="calls"] #app .callbtn{min-height:68px}
+}
+
+/* ===== v23 Lighting: cue stack · submasters · Blackout ===== */
+.lxwrap{display:grid;gap:12px}
+.lxkeys{display:grid;gap:8px}
+.lxlooks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.lxlooks{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#app .lxlook{--lamp:#c78bff;display:flex;flex-direction:column;align-items:center;gap:0;padding-block:8px;line-height:1.05}
+#app .lxlook .q{font-size:12px;opacity:.85}
+#app .lxlook .t{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.lxgo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr);gap:8px}
+#app .lxk{font-family:var(--display);font-size:20px;letter-spacing:.06em;text-transform:uppercase;min-height:52px;padding:6px 4px}
+#app #lxGo{--lamp:#3fd99a}
+#app #lxBack{--lamp:#c78bff}
+#app .bo{position:relative;overflow:hidden;min-height:52px;padding:4px 6px;border-radius:4px;border:2px solid var(--red);background:#1a0c0e;color:var(--red);
+  font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;line-height:1.05;
+  touch-action:none;-webkit-user-select:none;user-select:none;box-shadow:inset 0 -3px 6px rgba(0,0,0,.55),0 3px 0 #050608}
+#app .bo small{display:block;font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:.01em;text-transform:none;color:var(--fg);opacity:.75}
+#app .bo .hold{position:absolute;left:0;bottom:0;height:5px;width:0;background:#fff}
+#app .bo.engaged{background:var(--red);color:#fff;box-shadow:0 3px 0 #3a0000,0 0 18px rgba(255,64,64,.6);animation:boPulse 1.4s ease-in-out infinite}
+#app .bo.engaged small{color:#fff;opacity:.9}
+@keyframes boPulse{0%,100%{background-color:#ff4040}50%{background-color:#b3121f}}
+.subs{display:grid;gap:6px}
+.sub{display:grid;grid-template-columns:minmax(0,6.6rem) minmax(0,1fr) 3.2rem;gap:10px;align-items:center}
+.sub .snm{font-weight:600;line-height:1.1;min-width:0}
+.sub .snm span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub .snm small{display:block;color:var(--dim);font-family:var(--mono);font-size:10.5px;font-weight:400}
+.sub .sfd{display:grid;gap:3px;min-width:0}
+.sub .lvbar{height:7px;border-radius:3px;background:var(--panel2);overflow:hidden}
+.sub .lvbar b{display:block;height:100%;width:0;background:linear-gradient(90deg,#7a5a1a,#ffcc3d 65%,#fff3c4)}
+.sub[data-k="cyc"] .lvbar b{background:linear-gradient(90deg,#1b2a7a,#4a90ff 65%,#c8dcff)}
+.sub input[type=range]{height:24px}
+.sub .pct{text-align:right;font-size:14px}
+#lights.isout .sub .lvbar b{opacity:0}
+#lights .lxnote{display:none}
+@media (min-width:700px){#lights .lxnote{display:block}}
+/* Console: keys left, submasters right, compact */
+@media (min-width:1100px) and (min-height:620px){
+  #app #lights{padding:10px}
+  .lxwrap{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:12px;align-items:start}
+  .lxlooks{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  #app .lxlook{padding-block:4px;font-size:clamp(12px,1vw,17px)}
+  .lxgo{gap:6px}
+  #app .lxk,#app .bo{min-height:44px;font-size:clamp(13px,1.05vw,18px)}
+  #app .bo small{font-size:10px}
+  .sub{grid-template-columns:minmax(0,5.4rem) minmax(0,1fr) 2.8rem;gap:6px}
+  .sub .snm{font-size:clamp(11px,.85vw,14px)}
+  .sub input[type=range]{height:20px}
+  .sub .pct{font-size:12px}
+  #lights .lxnote{display:none}
+}
+@media (min-width:1100px) and (min-height:620px) and (max-height:860px){
+  .sub .snm small{display:none}
+  .sub .lvbar{height:5px}
+  #app .lxk,#app .bo{min-height:40px}
+}
+/* Multi-screen: Lighting window shows the cue stack big, with the program monitor under it */
+body[data-screen="picture"] #app #lights{display:none}
+body[data-screen="lights"] #app #strips,body[data-screen="lights"] #app #cue,
+body[data-screen="lights"] #app #scenes>.panel:not(#lights):not(.campanel){display:none}
+body[data-screen="lights"] #app #scenes{display:flex;flex-direction:column;gap:12px;overflow:auto}
+body[data-screen="lights"] #app #lights{order:-1}
+body[data-screen="lights"] #app .lxwrap{grid-template-columns:minmax(0,1fr)}
+body[data-screen="lights"] #app .lxlooks{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+body[data-screen="lights"] #app .lxlook{font-size:26px;min-height:76px}
+body[data-screen="lights"] #app .lxlook .q{font-size:16px}
+body[data-screen="lights"] #app .lxk,body[data-screen="lights"] #app .bo{font-size:26px;min-height:76px}
+body[data-screen="lights"] #app .bo small{font-size:13px}
+body[data-screen="lights"] #app .sub{grid-template-columns:minmax(0,8rem) minmax(0,1fr) 4rem;gap:12px}
+body[data-screen="lights"] #app .sub .snm{font-size:20px}
+body[data-screen="lights"] #app .sub .snm small{display:block;font-size:12px}
+body[data-screen="lights"] #app .sub .lvbar{height:12px}
+body[data-screen="lights"] #app .sub input[type=range]{height:34px}
+body[data-screen="lights"] #app .sub .pct{font-size:20px}
+body[data-screen="lights"] #app .mv{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
+@media (prefers-reduced-motion:reduce){#app .bo.engaged{animation:none}}
+
+/* v23 console fit: Stream moves under Claude in the right column, lighting compact, nothing scrolls */
+@media (min-width:1100px) and (min-height:620px){
+  #cue .streampanel{padding:0;border:0;background:none;border-radius:0}
+  #cue .streampanel>header{margin-bottom:6px}
+  #cue .streampanel .btnrow{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  #app #cue #streamStart,#app #cue #streamEnd{min-height:40px;font-size:16px;padding-block:4px}
+  #app .lxlook{flex-direction:row;justify-content:center;gap:5px;padding-block:6px;white-space:nowrap}
+  #app .lxlook .q{font-size:.8em}
+  #app .lxk{white-space:nowrap}
+  .lxgo{grid-template-columns:minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.3fr)}
+  #app .bo{padding-inline:3px}
+  #app .bo small{font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #app #lights>header{margin-bottom:6px}
+}
+@media (min-width:1100px) and (max-width:1700px) and (min-height:620px){#app .lxlook .q{display:none}}
+#app .lxlook{font-size:19px}
+@media (max-width:520px){#app .callbtn{font-size:14.5px;letter-spacing:0;padding-inline:0}#app .lxlook{font-size:17px;letter-spacing:.02em}}
+@media (min-width:1100px) and (min-height:620px){#app .lxlook{font-size:clamp(11px,.92vw,17px);letter-spacing:0;padding-inline:3px}}
+@media (min-width:1100px) and (min-height:620px) and (max-height:760px){
+  body[data-screen="all"] #app .campanel>header{display:none}
+}
+@media (min-width:1100px) and (min-height:620px) and (max-height:860px){
+  #app .lxlook{padding-block:4px;min-height:32px}
+  #app .lxk,#app .bo{min-height:38px}
+  .sub input[type=range]{height:16px}
+  .subs{gap:2px}
+}
+
+/* ===== v24 The bubble: AI OFF · WATCH · ON, ARE YOU SURE?, WATCH flashes ===== */
+.aidock{width:52px;height:52px;flex:none;align-self:center}
+.tallies{align-items:center}
+#wcBadge.ai-off svg{filter:grayscale(1) brightness(.5)}
+#wcBadge.ai-off .rim,#wcBadge.ai-off .flow{animation-play-state:paused}
+#wcBadge.ai-watch svg{animation:aiBreath 3.2s ease-in-out infinite}
+@keyframes aiBreath{50%{opacity:.5}}
+#wcBadge.ai-on{filter:drop-shadow(0 0 9px rgba(74,144,255,.6)) drop-shadow(0 8px 14px rgba(0,0,0,.5))}
+#wcBadge.working{filter:drop-shadow(0 0 16px #4a90ff) drop-shadow(0 0 5px #4a90ff)}
+#wcBadge.okp{filter:drop-shadow(0 0 18px #3fd99a)}
+#wcBadge.badp{filter:drop-shadow(0 0 18px #ff4040)}
+#wcBadge.flag{animation:aiFlag .55s ease-in-out 4}
+@keyframes aiFlag{50%{filter:drop-shadow(0 0 22px #ffcc3d) drop-shadow(0 0 8px #ffcc3d)}}
+@media (prefers-reduced-motion:reduce){#wcBadge.ai-watch svg,#wcBadge.flag{animation:none}}
+/* ARE YOU SURE? key */
+#app .ays{position:relative;min-width:132px;padding:10px 14px;border-radius:4px;border:2px solid var(--yellow);background:#1f1a08;color:var(--yellow);
+  font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.08em;cursor:pointer;line-height:1.05;
+  box-shadow:inset 0 -3px 6px rgba(0,0,0,.5),0 3px 0 #050608;text-shadow:0 -1px 0 rgba(0,0,0,.9)}
+#app .ays small{display:block;font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:.01em;color:var(--fg);opacity:.75;margin-top:3px}
+#app .ays:active{transform:translateY(3px);background:var(--yellow);color:#1f1600}
+/* AI switch: three positions */
+.aimode{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:6px;align-items:stretch}
+.aimode.big{grid-template-columns:repeat(3,minmax(0,1fr))}
+.aimode .lbl{align-self:center;padding-right:2px}
+.aiseg{--lamp:#9298a6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:48px;padding:5px 4px;border-radius:4px;border:2px solid #050608;
+  background:#14161d;color:color-mix(in srgb,var(--lamp) 85%,#fff);font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;line-height:1;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),inset 0 -3px 6px rgba(0,0,0,.55),0 3px 0 #050608}
+.aiseg small{font-family:var(--body);font-weight:500;font-size:10.5px;letter-spacing:0;text-transform:none;opacity:.8}
+.aiseg[data-ai="off"]{--lamp:#ece9e1}.aiseg[data-ai="watch"]{--lamp:#ffcc3d}.aiseg[data-ai="on"]{--lamp:#4a90ff}
+.aiseg.on{background-color:var(--lamp);color:#0b0d12;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),0 3px 0 #050608,0 0 14px 1px color-mix(in srgb,var(--lamp) 60%,transparent);transform:translateY(2px)}
+.aiseg.on small{opacity:.85}
+/* WATCH flash */
+.watchflash{position:fixed;z-index:35;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));width:min(92vw,460px);
+  display:grid;gap:8px;padding:14px 16px;border-radius:10px;background:#1f1a08;border:2px solid var(--yellow);color:var(--fg);box-shadow:0 14px 34px rgba(0,0,0,.6)}
+.watchflash b{font-family:var(--display);font-size:20px;letter-spacing:.08em;text-transform:uppercase;color:var(--yellow)}
+.watchflash .wrow{display:flex;gap:8px;flex-wrap:wrap}
+.wbtn{min-height:42px;padding:6px 16px;border-radius:4px;border:2px solid #050608;background:var(--yellow);color:#1f1600;font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.wbtn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+/* Cards: ARE YOU SURE? and the AI card */
+.card2{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(94vw,540px);max-height:min(82vh,720px);overflow:auto;
+  border-radius:12px;background:var(--panel);border:2px solid var(--blue);box-shadow:0 20px 50px rgba(0,0,0,.7)}
+.card2.ays{border-color:var(--yellow)}
+.card2-in{padding:16px 18px 18px;display:grid;gap:8px}
+.card2 header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.card2 h3{margin:0;font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:.05em;text-transform:uppercase}
+.card2.ays h3{color:var(--yellow)}
+.card2.ai h3{color:var(--blue)}
+.card2 h4{margin:8px 0 0;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.card2 ul{margin:0;padding-left:18px;display:grid;gap:3px}
+.card2 li.calm{list-style:none;margin-left:-18px;color:var(--ok)}
+.card2 p{margin:0}
+.card2 .ailine{color:var(--dim);font-size:14px}
+.x2{width:40px;height:40px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--fg);font-size:18px;cursor:pointer}
+.lastai{font-size:14px}
+.lastai .ok{color:var(--ok)}.lastai .bad{color:var(--red)}
+.crow{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px;margin-top:8px}
+.cgo,.cno{min-height:52px;border-radius:4px;border:2px solid #050608;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.cgo{background:var(--ok);color:#03210f;box-shadow:0 3px 0 #050608,0 0 14px rgba(63,217,154,.4)}
+.cno{background:#14161d;color:var(--fg)}
+.humor{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--dim);margin-top:6px}
+.humor input{width:18px;height:18px;accent-color:var(--yellow);flex:none}
+.credit2{font-size:12px;color:var(--dim);margin-top:4px}
+.src.WATCH{color:var(--yellow)}
+@media (min-width:1100px) and (min-height:620px){
+  #app .ays{min-width:118px;padding:6px 10px;font-size:16px}
+  #app .ays small{font-size:10px}
+  .aimode{gap:5px}
+  .aiseg{min-height:40px;font-size:15px}
+  .aiseg small{font-size:9.5px}
+}
+@media (min-width:1100px) and (min-height:620px){
+  #app .bar{flex-wrap:nowrap}
+  #app .brand{min-width:0;flex:1 1 auto}
+  #app .brand p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #app .tallies{flex-wrap:nowrap}
+  #app .tally{white-space:nowrap}
+}
+@media (min-width:1100px) and (max-width:1320px) and (min-height:620px){
+  #tCore{display:none}
+  #app .clock{font-size:16px}
+  #app .brand h1{font-size:22px}
+  #app .ays{min-width:0}
+  #app .hush{min-width:0}
+}
+@media (min-width:1100px) and (min-height:620px) and (max-height:860px){
+  .aiseg small{display:none}
+  .aiseg{min-height:34px}
+  #app .ays small{display:none}
+}
+
+/* 60-second demo + first-visit card */
+.demobtn{display:inline-flex;align-items:baseline;gap:8px;margin-top:6px;padding:6px 12px;border-radius:6px;border:1.5px solid var(--blue);background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--fg);font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.06em;cursor:pointer}
+.demobtn small{font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:0;opacity:.75}
+.demobar{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));width:min(94vw,620px);display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:2px solid var(--blue);background:color-mix(in srgb,var(--blue) 22%,var(--panel));box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:30}
+.demobar[hidden]{display:none}
+.demobar .dstep{font-family:var(--display);font-weight:700;color:var(--yellow);letter-spacing:.06em;flex:none}
+.demobar .dtxt{flex:1;min-width:0;font-weight:600;line-height:1.3}
+.demobar .dbtn{flex:none;padding:8px 12px;border-radius:6px;border:1.5px solid var(--fg);background:transparent;color:var(--fg);font-weight:700;cursor:pointer}
+.demobar .dbtn[hidden]{display:none}
+.introcard{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(8,9,12,.78)}
+.introcard[hidden]{display:none}
+.intro-in{width:min(100%,460px);padding:22px 20px;border-radius:14px;border:2px solid var(--yellow);background:var(--panel);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.intro-in .ikicker{margin:0 0 6px;font-family:var(--display);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:13px;color:var(--dim)}
+.intro-in h2{margin:0 0 10px;font-family:var(--display);font-weight:700;font-size:34px;line-height:1.05;color:var(--fg)}
+.intro-in h2 span{color:var(--blue)}
+.intro-in p{margin:0 0 14px;line-height:1.45}
+.intro-in .irow{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.intro-in .iplay{flex:1 1 220px;padding:14px 16px;border-radius:8px;border:none;background:var(--red);color:#1a0000;font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.04em;cursor:pointer}
+.intro-in .iskip{flex:1 1 120px;padding:14px 16px;border-radius:8px;border:1.5px solid var(--dim);background:transparent;color:var(--fg);font-weight:600;cursor:pointer}
+.intro-in .inote{margin:0;font-size:12px;color:var(--dim)}
+@media (min-width:1100px) and (min-height:620px){.demobar{top:auto;bottom:calc(34px + env(safe-area-inset-bottom,0px))}}
+@media (max-width:520px){.demobar{flex-wrap:wrap}.demobar .dtxt{flex-basis:calc(100% - 50px)}.demobar .dbtn{margin-left:auto}}
+</style>
+
+<div class="wrap" id="app">
+  <header class="bar">
+    <div class="brand">
+      <h1>Director's Desk</h1>
+      <p><span id="showLabel">Hall A · 200 seats · hybrid on Google Meet</span> · <b>simulated</b> Q-SYS Core</p>
+      <button class="demobtn" id="demoBtn" type="button">▶ Run the show <small>60-second demo</small></button>
+    </div>
+    <div class="tallies">
+      <span class="aidock" id="aiDock" aria-hidden="true"></span>
+      <span class="tally" id="tStream"><i></i><span>Stream</span></span>
+      <span class="tally" id="tLx"><i></i><span id="tLxTxt">Lights</span></span>
+      <span class="tally on-ok" id="tCore"><i></i>Core</span>
+      <span class="tally" id="tClaude"><i></i><span id="tClaudeTxt">Claude</span></span>
+      <span class="tally"><span class="clock num" id="clock">--:--:--</span></span>
+    </div>
+    <button class="ays" id="aysBtn" type="button">ARE YOU SURE?<small>check the next step</small></button>
+    <button class="hush" id="hush" type="button" aria-pressed="false">HUSH<small id="hushSub">Human only · tap to engage</small><span class="hold" id="hushHold"></span></button>
+  </header>
+
+  <div class="hushbanner" id="hushBanner" hidden role="alert">
+    <span><b>HUSH IS ON.</b> All mics and remote audio are cut. Mute and fader changes wait until it’s released.</span>
+    <button class="release" type="button" id="hushRelease">Hold to release<span class="hold" id="relHold"></span></button>
+  </div>
+
+  <section class="crew" aria-label="Crew on the desk">
+    <span class="lbl">On the desk</span>
+    <div class="people" id="people"><span class="mode">Just you</span></div>
+    <label class="rolepick"><span class="lbl">My role</span>
+      <select id="role">
+        <option value="Director">Director</option>
+        <option value="A1 Audio">A1 Audio</option>
+        <option value="Camera">Camera</option>
+        <option value="Stream">Stream engineer</option>
+        <option value="Lighting">Lighting (LD)</option>
+        <option value="Floor">Floor manager</option>
+      </select>
+    </label>
+    <label class="rolepick"><span class="lbl">Show</span>
+      <select id="show">
+        <option value="hall-a">Hall A · 200 seats</option>
+        <option value="boardroom">Boardroom · 16 seats</option>
+        <option value="studio">Studio · podcast set</option>
+      </select>
+    </label>
+    <label class="rolepick screenpick"><span class="lbl">This screen</span>
+      <select id="screen" aria-label="What this window shows">
+        <option value="all">Whole desk</option>
+        <option value="audio">Audio</option>
+        <option value="picture">Picture</option>
+        <option value="calls">Calls &amp; Claude</option>
+        <option value="lights">Lighting</option>
+      </select>
+    </label>
+    <span class="mode" id="mode">Solo mode</span>
+    <span class="mode" id="owns"></span>
+    <button class="sheetbtn" type="button" id="sheetToggle" aria-expanded="false">Call sheet</button>
+  </section>
+
+  <section class="panel" id="sheet" aria-label="Call sheet">
+    <header><h2>Call sheet</h2><span class="lbl" id="sheetStatus">Draft</span></header>
+    <div class="mycard" id="myCard" hidden></div>
+    <div class="sheetmeta" id="sheetMeta">
+      <label><span class="lbl">Call time</span><input type="time" id="callTime"></label>
+      <span class="mode" id="sheetHint"></span>
+    </div>
+    <div class="rows" id="rows"></div>
+    <div class="sheetact" id="sheetAct">
+      <button class="act" type="button" id="addRow">Add crew member</button>
+      <button class="go" type="button" id="sendSheet">Send call sheet</button>
+    </div>
+  </section>
+
+  <main class="grid">
+    <section class="panel" id="strips" aria-label="Channel strips">
+      <header><h2>Audio</h2><div class="phones"><span class="lbl">🎧 Phones</span><input type="range" id="phonesVol" min="0" max="100" value="60" aria-label="Headphone volume"><button class="act" type="button" id="phonesOff" hidden>Stop listening</button></div></header>
+      <div id="stripList"></div>
+    </section>
+
+    <section id="scenes">
+      <div class="panel scenepanel">
+        <header><h2>Scenes</h2><span class="lbl" id="sceneNow">—</span></header>
+        <div class="btnrow" id="presetRow"></div>
+      </div>
+      <div class="panel campanel">
+        <header><h2>Cameras</h2><span class="lbl">tap a preview to take it</span></header>
+        <div class="mv" id="camRow"></div>
+        <p class="simnote">Simulated previews. On a real show these come from the PTZ cameras through the room’s bridge.</p>
+      </div>
+      <div class="panel" id="lights" aria-label="Lighting">
+        <header><h2>Lighting</h2><span class="lbl" id="lxNow">—</span></header>
+        <div class="lxwrap">
+          <div class="lxkeys">
+            <div class="lxlooks" id="lxLooks"></div>
+            <div class="lxgo">
+              <button class="act lxk" type="button" id="lxBack">Back</button>
+              <button class="act lxk" type="button" id="lxGo">GO</button>
+              <button class="bo" type="button" id="blackout" aria-pressed="false">Blackout<small id="boSub">Human only · tap</small><span class="hold"></span></button>
+            </div>
+          </div>
+          <div class="subs" id="lxSubs"></div>
+        </div>
+        <p class="simnote lxnote">Linked: every scene key fires its light cue with audio and camera. Simulated sACN universe 1, 36 DMX channels.</p>
+      </div>
+      <div class="panel streampanel">
+        <header><h2>Stream</h2><span class="lbl" id="streamNow">—</span></header>
+        <div class="btnrow">
+          <button class="sel" type="button" id="streamStart">Go live</button>
+          <button class="sel" type="button" id="streamEnd">End stream</button>
+        </div>
+        <div class="confirm" id="confirmCard" hidden style="margin-top:12px">
+          <p><b>Claude asks to end the stream.</b> Ending is a human decision. Anyone on the crew can confirm or keep it live.</p>
+          <div class="row">
+            <button class="act danger" type="button" id="confirmEnd">End stream</button>
+            <button class="act" type="button" id="confirmKeep">Keep live</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="cue" aria-label="Claude cue desk and crew calls">
+      <header><h2>Calls</h2><span class="lbl">to the whole crew</span></header>
+      <div class="calls">
+        <div class="callrow">
+          <button class="callbtn standby" type="button" data-call="Standby">Standby</button>
+          <button class="callbtn go" type="button" data-call="Go">Go</button>
+          <button class="callbtn hold" type="button" data-call="Hold">Hold</button>
+          <button class="callbtn" type="button" data-call="Clear">Clear</button>
+        </div>
+        <form class="callform" id="callForm">
+          <input id="callInput" autocomplete="off" placeholder="Call the crew, e.g. Standby cam to audience" aria-label="Crew call">
+          <button class="send" type="submit">Call</button>
+        </form>
+      </div>
+
+      <header style="margin-top:6px"><h2>Cue Claude</h2><span class="lbl">you direct · Claude operates</span></header>
+      <div class="aimode" role="radiogroup" aria-label="AI on this desk">
+        <span class="lbl">AI</span>
+        <button type="button" class="aiseg" data-ai="off" role="radio" aria-checked="false">Off<small>me alone</small></button>
+        <button type="button" class="aiseg" data-ai="watch" role="radio" aria-checked="false">Watch<small>looks, never acts</small></button>
+        <button type="button" class="aiseg" data-ai="on" role="radio" aria-checked="true">On<small>works with you</small></button>
+      </div>
+      <div class="who" id="who">Type a cue the way you'd call it on headset. Dictate with your keyboard's mic for hands-free.</div>
+      <form class="cueform" id="cueForm">
+        <input id="cueInput" autocomplete="off" placeholder="e.g. Q&A, open audience mic two" aria-label="Cue">
+        <button class="go" id="goBtn" type="submit">GO</button>
+      </form>
+      <div class="chips" id="chips"></div>
+      <div class="reply" id="replyBox"><p id="reply">Standing by.</p><button class="stop" id="stopBtn" type="button" hidden>Stop</button></div>
+      <div>
+        <header style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><span class="lbl">Show log</span><span class="lbl">who · what · read back</span></header>
+        <ul class="log" id="log"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span class="keys" aria-label="Keyboard shortcuts"><b>Keys</b> 1–5 mute · Q W E R scenes · S G H C calls · L lights GO · A are you sure? · / cue Claude · Esc close</span>
+    <label class="toggle"><input type="checkbox" id="fault"> Test mode: Core drops 1 in 4 Claude commands (this device)</label>
+    <span class="credit"><b>Concept by Ovi</b> · built with Claude · simulation, no real equipment</span>
+  </footer>
+</div>
+<div class="toast" id="toast" hidden role="status" aria-live="assertive"><small id="toastWho"></small><span id="toastTxt"></span></div>
+<div class="card2" id="aiCard" hidden role="dialog" aria-labelledby="aiCardTitle"><div class="card2-in"><header><h3 id="aiCardTitle">Card</h3><button class="x2" type="button" id="aiCardClose" aria-label="Close">✕</button></header><div class="card2-body" id="aiCardBody"></div></div></div>
+<div class="watchflash" id="watchFlash" hidden role="status" aria-live="polite"><b>Are you sure?</b><span id="watchTxt"></span><div class="wrow"><button type="button" class="wbtn" id="watchUndo">Undo</button><button type="button" class="wbtn ghost" id="watchOk">Keep it</button></div></div>
+
+<div class="demobar" id="demoBar" hidden role="status" aria-live="polite"><span class="dstep" id="demoStep"></span><span class="dtxt" id="demoTxt"></span><button type="button" class="dbtn" id="demoStopBtn" hidden>Stop</button><button type="button" class="dbtn" id="demoClose" hidden>Close</button></div>
+<div class="introcard" id="introCard" hidden role="dialog" aria-modal="true" aria-labelledby="introTitle"><div class="intro-in"><p class="ikicker">Director's Desk</p><h2 id="introTitle">Human directs.<br><span>Claude operates.</span></h2><p>A broadcast desk where you call the cue and Claude runs sound, cameras and lights. HUSH and Blackout stay human only.</p><div class="irow"><button type="button" class="iplay" id="introPlay">▶ Watch the 60-second show</button><button type="button" class="iskip" id="introSkip">I'll explore</button></div><p class="inote">A working simulation. No real equipment is connected.</p></div></div>
+<script src="desk.js"></script>
+<script src="badge.js"></script>
+</body></html>
