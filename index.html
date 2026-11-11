@@ -794,6 +794,65 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
 .intro-in .inote{margin:0;font-size:12px;color:var(--dim)}
 @media (min-width:1100px) and (min-height:620px){.demobar{top:auto;bottom:calc(34px + env(safe-area-inset-bottom,0px))}}
 @media (max-width:520px){.demobar{flex-wrap:wrap}.demobar .dtxt{flex-basis:calc(100% - 50px)}.demobar .dbtn{margin-left:auto}}
+
+/* ===== Rooms: the meeting-room fleet (CollabOS), one screen of its own ===== */
+#rooms{display:none}
+body[data-screen="rooms"] #app #strips,body[data-screen="rooms"] #app #scenes,body[data-screen="rooms"] #app #cue{display:none}
+body[data-screen="rooms"] #app #rooms{display:block;overflow:auto}
+button.tally{cursor:pointer;color:var(--fg)}
+.rmtop{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.rmfilter{display:flex;gap:6px;margin-right:auto}
+.rmfilter .act{padding:8px 12px}
+.rmfilter .act[aria-pressed="true"]{border-color:var(--yellow);color:var(--yellow)}
+.act.okb{border-color:color-mix(in srgb,var(--ok) 60%,var(--line));color:var(--ok)}
+.act.aysb{border-color:var(--yellow);color:var(--yellow)}
+.act small{font-weight:400;color:var(--dim);font-size:12px}
+.act:disabled{opacity:.6;cursor:default}
+#rmSum b.ok{color:var(--ok)} #rmSum b.warn{color:var(--yellow)} #rmSum b.down{color:var(--red)}
+.rmgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+@media (max-width:520px){.rmgrid{grid-template-columns:minmax(0,1fr)}}
+.rm{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:0 8px 8px 0;padding:10px 12px;display:grid;gap:6px;min-width:0}
+.rm.warn{border-left-color:var(--yellow)} .rm.down{border-left-color:var(--red)}
+.rmh{display:flex;align-items:center;gap:8px}
+.rmh i{width:10px;height:10px;border-radius:50%;background:var(--ok);flex:none}
+.rm.warn .rmh i{background:var(--yellow)} .rm.down .rmh i{background:var(--red);box-shadow:0 0 8px var(--red)}
+.rmh b{font-family:var(--display);font-size:20px;letter-spacing:.03em}
+.rmh .lbl{margin-left:auto;font-size:11px}
+.rmg,.rmb{font-size:12px;color:var(--dim)}
+.rmb{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.rmck{display:flex;flex-wrap:wrap;gap:4px}
+.rmck span{font-size:11px;padding:2px 6px;border-radius:4px;border:1px solid var(--line);color:var(--ok)}
+.rmck span.n{color:#1a0000;background:var(--red);border-color:var(--red)}
+.rm.warn .rmck span.n{background:var(--yellow);border-color:var(--yellow)}
+.rmf{font-size:14px;font-weight:600}
+.rm.ok .rmf{color:var(--dim);font-weight:400}
+.rmcols{display:grid;gap:14px;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);margin-top:14px}
+@media (max-width:880px){.rmcols{grid-template-columns:minmax(0,1fr)}}
+.rmh2{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:4px 0 8px;flex-wrap:wrap}
+.rmh2 h3{margin:0;font-family:var(--display);font-size:18px;letter-spacing:.05em;text-transform:uppercase}
+.fd{border:1px solid var(--line);border-left:4px solid var(--yellow);border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:10px;background:var(--panel2)}
+.fd.down{border-left-color:var(--red)}
+.fd p{margin:0 0 6px}
+.fd .ev{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.fd .pr{color:var(--blue);font-weight:600}
+.fd .rec{color:var(--yellow);font-size:13px}
+.rmacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rmacts .act{padding:8px 12px}
+.rmnote{color:var(--dim);font-size:13px;margin:4px 0}
+.rings{display:flex;gap:6px;margin:6px 0}
+.ring{flex:1;text-align:center;padding:8px 4px;border-radius:6px;border:1px solid var(--line);font-family:var(--display);font-weight:600;letter-spacing:.05em}
+.ring small{display:block;font-family:var(--body);font-weight:400;font-size:11px;color:var(--dim)}
+.ring.done{border-color:var(--ok);color:var(--ok)} .ring.run{border-color:var(--yellow);color:var(--yellow)}
+.rmtix{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.rmtix li{font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel2)}
+.rmtix li small{display:block;color:var(--dim);font-size:12px;margin-top:2px}
+.rmtix li.rmnote{border:0;background:none;padding:0}
+/* Rooms on a phone: let the page scroll normally instead of the locked console */
+@media (max-width:1099px),(max-height:619px){
+html:has(body[data-screen="rooms"]),body[data-screen="rooms"]{height:auto!important;overflow:auto!important}
+body[data-screen="rooms"] #app,body[data-screen="rooms"] #app .grid{height:auto!important;grid-template-rows:none!important}
+body[data-screen="rooms"] #app #rooms{overflow:visible}
+}
 </style>
 
 <div class="wrap" id="app">
@@ -808,6 +867,7 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
       <span class="tally" id="tStream"><i></i><span>Stream</span></span>
       <span class="tally" id="tLx"><i></i><span id="tLxTxt">Lights</span></span>
       <span class="tally on-ok" id="tCore"><i></i>Core</span>
+      <button class="tally" id="tRooms" type="button" title="Open the meeting-room fleet"><i></i><span id="tRoomsTxt">Rooms</span></button>
       <span class="tally" id="tClaude"><i></i><span id="tClaudeTxt">Claude</span></span>
       <span class="tally"><span class="clock num" id="clock">--:--:--</span></span>
     </div>
@@ -847,6 +907,7 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
         <option value="picture">Picture</option>
         <option value="calls">Calls &amp; Claude</option>
         <option value="lights">Lighting</option>
+        <option value="rooms">Rooms (fleet)</option>
       </select>
     </label>
     <span class="mode" id="mode">Solo mode</span>
@@ -949,6 +1010,25 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
         <ul class="log" id="log"></ul>
       </div>
     </section>
+    <section class="panel" id="rooms" aria-label="Meeting rooms fleet">
+      <header><h2>Rooms</h2><span class="lbl" id="rmSum">—</span></header>
+      <div class="rmtop">
+        <div class="rmfilter" id="rmFilter" role="group" aria-label="Office">
+          <button class="act" data-f="all" aria-pressed="true">All</button><button class="act" data-f="sf" aria-pressed="false">SF</button><button class="act" data-f="ny" aria-pressed="false">NY</button><button class="act" data-f="ldn" aria-pressed="false">London</button>
+        </div>
+        <button class="act okb" id="rmSweep" type="button">Run room sweep</button>
+        <button class="act" id="rmBreak" type="button">Break something <small>demo</small></button>
+      </div>
+      <div class="rmgrid" id="rmGrid"></div>
+      <div class="rmcols">
+        <div><header class="rmh2"><h3>Claude found</h3><span class="lbl">Claude proposes · you approve</span></header><div id="rmFind"></div></div>
+        <div>
+          <header class="rmh2"><h3>Update</h3><span class="lbl">staged · you advance each ring</span></header><div id="rmRing"></div>
+          <header class="rmh2"><h3>Tickets</h3><span class="lbl">with diagnostic context</span></header><ul class="rmtix" id="rmTix"></ul>
+        </div>
+      </div>
+      <p class="simnote">Simulated fleet of Logitech CollabOS rooms. A real version reads Logitech Sync and the CollabOS API through a small server that keeps the keys; this page never holds them.</p>
+    </section>
   </main>
 
   <footer class="foot">
@@ -964,5 +1044,6 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
 <div class="demobar" id="demoBar" hidden role="status" aria-live="polite"><span class="dstep" id="demoStep"></span><span class="dtxt" id="demoTxt"></span><button type="button" class="dbtn" id="demoStopBtn" hidden>Stop</button><button type="button" class="dbtn" id="demoClose" hidden>Close</button></div>
 <div class="introcard" id="introCard" hidden role="dialog" aria-modal="true" aria-labelledby="introTitle"><div class="intro-in"><p class="ikicker">Director's Desk</p><h2 id="introTitle">Human directs.<br><span>Claude operates.</span></h2><p>A broadcast desk where you call the cue and Claude runs sound, cameras and lights. HUSH and Blackout stay human only.</p><div class="irow"><button type="button" class="iplay" id="introPlay">▶ Watch the 60-second show</button><button type="button" class="iskip" id="introSkip">I'll explore</button></div><p class="inote">A working simulation. No real equipment is connected.</p></div></div>
 <script src="desk.js"></script>
+<script src="rooms.js"></script>
 <script src="badge.js"></script>
 </body></html>

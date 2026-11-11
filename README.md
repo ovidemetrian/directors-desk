@@ -17,9 +17,10 @@ A tablet broadcast desk for live and hybrid shows: sound, cameras, lights and st
 - **ARE YOU SURE?** One key shows what your next step will change and what looks wrong right now, before you GO. It works with the AI off. In WATCH, the AI asks the same question once, with a smile and an Undo, and never on HUSH or Blackout.
 - **Lights on cue with sound and cameras.** One scene GO moves audio, camera and the light cue together, with real fade times. The LD has a cue stack and house, wash, key and cyc submasters, and the camera previews show what the lights are doing. **Blackout is human only**, like HUSH.
 - **Camera previews** with program on air, and **PFL** headphone listening per channel.
+- **Rooms: from one show to many offices.** A fleet screen of Logitech CollabOS meeting rooms in San Francisco, New York and London. Each room shows camera, mics, display, network and calendar health. Claude reads the faults, shows the evidence and proposes the fix; a human approves. It waits for a meeting to end before anything that would drop a call, spots a failure that keeps coming back and opens a ticket for the root cause instead of resetting again, and runs CollabOS updates in rings (one room, one office, the fleet) that only a human advances, with rollback ready. Tap the ROOMS tally or pick Rooms under This screen.
 - **Tablet, desktop console, or several portrait monitors** with one mouse across all of them, each window showing one part: Audio, Picture, Lighting, or Calls & Claude.
 
-It is a working simulation. No real equipment is connected yet. This installable version uses an offline cue parser; the live-Claude version runs inside Claude.
+It is a working simulation. No real equipment is connected yet. A real Rooms screen would read Logitech Sync and the CollabOS API through a small server that holds the keys; this page never holds them. This installable version uses an offline cue parser; the live-Claude version runs inside Claude.
 
 ## What comes next
 

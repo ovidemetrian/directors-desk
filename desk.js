@@ -83,7 +83,7 @@ if(bc)bc.onmessage=ev=>{const m=ev.data||{};if(docRef||m.show!==SHOW)return;
   else if(m.t==='hello'){bcSend({t:'state',show:SHOW,S});}
   else if(m.t==='state'&&!bcSynced&&m.S&&m.S.ch){S=Object.assign(freshState(),m.S);bcSynced=true;render();addLog('DIR','In step with the other screens',myRole);}};
 setTimeout(()=>{if(!docRef)bcSend({t:'hello',show:SHOW});},1200);
-const SCREENS={all:'Whole desk',audio:'Audio',picture:'Picture',calls:'Calls & Claude',lights:'Lighting'};
+const SCREENS={all:'Whole desk',audio:'Audio',picture:'Picture',calls:'Calls & Claude',lights:'Lighting',rooms:'Rooms'};
 let consoleCss=null;
 function setScreen(v,announce){
   if(!SCREENS[v])v='all';
@@ -942,6 +942,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&demoOn)stopDemo();});
   box.hidden=false; setTimeout(()=>{try{$('#introPlay').focus();}catch(_){}},50);
 })();
 
+window.deskAPI={log:addLog,toast,aiMode,setScreen};
 render();
 addLog('CORE','Design running · Presentation scene loaded','');
 })();
