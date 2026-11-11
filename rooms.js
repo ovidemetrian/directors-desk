@@ -17,7 +17,7 @@ const ROOMS=[
   ['ldn','Thames',12,'Rally Bar','Google Meet'],['ldn','Soho',6,'Rally Bar Mini','Google Meet'],
   ['ldn','Camden',4,'MeetUp 2','Zoom Rooms'],['ldn','Greenwich',18,'Rally Bar + 4 mic pods','Google Meet']
 ].map((r,i)=>({id:'r'+i,office:r[0],name:r[1],seats:r[2],gear:r[3],plat:r[4],fw:FW_NOW,
-  ck:{cam:1,mic:1,scr:1,net:1,cal:1},fault:null,history:0,busyUntil:null}));
+  ck:{cam:1,mic:1,scr:1,net:1,cal:1},fault:null,history:0,busyUntil:null,occ:null}));
 
 /* Faults Claude knows how to read. disruptive = would drop a call in progress. */
 const FAULTS={
@@ -38,11 +38,15 @@ function seed(){ /* a believable Tuesday: a few rooms booked, three problems wai
   breakRoom(ROOMS[0],'micpod',2,true);   /* recurring: third time */
   breakRoom(ROOMS[5],'cal',0,true);
   breakRoom(ROOMS[9],'offline',0,true);
+  ghost(ROOMS[4],11); ROOMS[1].occ={type:'walkin',people:3,mins:6};
 }
 function breakRoom(r,key,history,quiet){
   const f=FAULTS[key]; r.fault=key; r.ck[f.ck]=0; r.history=(history!=null?history:r.history+1);
   if(!quiet)log('FAIL',r.name+' · '+f.what);
 }
+function ghost(r,mins){const d=now();d.setMinutes(d.getMinutes()+50-mins);r.busyUntil=d;r.occ={type:'ghost',mins:mins};}
+function occLine(r){const o=r.occ;if(!o)return busy(r)?'In a meeting until '+hhmm(r.busyUntil):'Free';
+  return o.type==='ghost'?'Booked · nobody here for '+o.mins+' min':o.people+' people · not booked';}
 function status(r){return r.fault?FAULTS[r.fault].sev:'ok';}
 function busy(r){return r.busyUntil&&r.busyUntil>now();}
 
@@ -58,16 +62,16 @@ function render(){
       '<div class="rmg">'+r.gear+' · '+r.plat+' · '+r.seats+' seats</div>'+
       '<div class="rmck">'+CHECKS.map(([k,l])=>'<span class="'+(r.ck[k]?'y':'n')+'" title="'+l+'">'+l+'</span>').join('')+'</div>'+
       '<div class="rmf">'+(f?f.what:'All checks pass')+'</div>'+
-      '<div class="rmb"><span>'+(busy(r)?'In a meeting until '+hhmm(r.busyUntil):'Free')+'</span><span class="num">CollabOS '+r.fw+'</span></div></div>';
+      '<div class="rmb"><span'+(r.occ?' class="occ"':'')+'>'+occLine(r)+'</span><span class="num">CollabOS '+r.fw+'</span></div></div>';
   }).join('');
   renderFindings(); renderRing(); renderTickets();
 }
 
 /* ---------- Claude's findings: proposes, never acts alone ---------- */
 function renderFindings(){
-  const m=desk().aiMode(), box=$('#rmFind'), bad=ROOMS.filter(r=>r.fault);
+  const m=desk().aiMode(), box=$('#rmFind'), bad=ROOMS.filter(r=>r.fault), occ=ROOMS.filter(r=>r.occ);
   if(m==='off'){box.innerHTML='<p class="rmnote">AI is OFF. The tiles still show health; you diagnose and fix by hand.</p>';return;}
-  if(!bad.length){box.innerHTML='<p class="rmnote">Claude: every room passes. Nothing to fix.</p>';return;}
+  if(!bad.length&&!occ.length){box.innerHTML='<p class="rmnote">Claude: every room passes. Nothing to fix.</p>';return;}
   box.innerHTML=bad.map(r=>{const f=FAULTS[r.fault];
     const rec=r.history>=2?'<p class="rec">Recurring: '+(r.history+1)+' times in 3 weeks. Another reset only hides it. Claude suggests a ticket to AV Engineering for the root cause.</p>':'';
     const wait=f.disruptive&&busy(r)?'<p class="rec">This room is in a meeting until '+hhmm(r.busyUntil)+'. The fix drops the call.</p>':'';
@@ -78,6 +82,13 @@ function renderFindings(){
              '<button class="act aysb" data-a="ays" data-r="'+r.id+'">Are you sure?</button><button class="act" data-a="ticket" data-r="'+r.id+'">Open ticket</button>';
     return '<div class="fd '+f.sev+'"><p class="fh"><b>'+r.name+'</b> · '+f.what+'</p><p class="ev">'+f.evidence+'</p>'+
       '<p class="pr">'+(m==='watch'?'Claude would: ':'Claude proposes: ')+f.fix+'</p>'+rec+wait+'<div class="rmacts">'+acts+'</div></div>';
+  }).join('')+occ.map(r=>{const o=r.occ,g=o.type==='ghost',id=r.id;
+    const acts=m==='watch'?'<button class="act" data-a="occyes" data-r="'+id+'">'+(g?'Released by hand':'Booked by hand')+'</button><button class="act" data-a="occno" data-r="'+id+'">Leave it</button>'
+      :'<button class="act okb" data-a="occyes" data-r="'+id+'">'+(g?'Release room':'Book it · 30 min')+'</button><button class="act aysb" data-a="occays" data-r="'+id+'">Are you sure?</button><button class="act" data-a="occno" data-r="'+id+'">'+(g?'Keep it booked':'Leave it')+'</button>';
+    return '<div class="fd occ"><p class="fh"><b>'+r.name+'</b> · '+(g?'Booked, but empty for '+o.mins+' min':o.people+' people in the room, not booked')+'</p>'+
+      '<p class="ev">'+(g?'Spot occupancy: 0 people · booking runs until '+hhmm(r.busyUntil)+' · nobody joined the call':'Spot occupancy: '+o.people+' people for '+o.mins+' min · Tap Scheduler shows no booking')+'</p>'+
+      '<p class="pr">'+(m==='watch'?'Claude would: ':'Claude proposes: ')+(g?'release the room (Auto Release) so someone else can book it':'book it for them for 30 min (Auto Book) so nobody walks in')+'</p>'+
+      '<div class="rmacts">'+acts+'</div></div>';
   }).join('')+(m==='watch'?'<p class="rmnote">AI is on WATCH: Claude flags, never acts.</p>':'');
 }
 function fixRoom(r,how){
@@ -86,6 +97,13 @@ function fixRoom(r,how){
   desk().toast('Rooms',r.name+' is healthy again'); render();
 }
 function act(a,r){
+  if(a.startsWith('occ')){const o=r.occ;if(!o)return;const g=o.type==='ghost';
+    if(a==='occays'){desk().toast('Claude · are you sure?',g?'Releasing ends the booking. If the organizer is only running late, they lose the room. The invite stays in their calendar so they can rebook.':'Booking only marks the room busy for 30 minutes. No names, no faces: Spot counts people, nothing else.');return;}
+    if(a==='occyes'){if(desk().aiMode()==='off')return;
+      if(g)r.busyUntil=null;else{const d=now();d.setMinutes(d.getMinutes()+30);r.busyUntil=d;}
+      log(desk().aiMode()==='on'?'CLAUDE':'DIR',r.name+(g?' released · ghost meeting, '+o.mins+' min empty':' booked for 30 min · walk-in of '+o.people)+(desk().aiMode()==='on'?' · approved by director':' (by hand)'));}
+    else log('DIR',r.name+' · left as is');
+    r.occ=null; render(); return;}
   const f=r.fault&&FAULTS[r.fault]; if(!f&&a!=='ticket')return;
   if(a==='fix'){if(desk().aiMode()!=='on'){desk().toast('Rooms','AI is not ON. Fix by hand.');return;}fixRoom(r,'claude');}
   else if(a==='hand')fixRoom(r,'hand');
@@ -141,7 +159,9 @@ $('#rmFilter').addEventListener('click',e=>{const b=e.target.closest('[data-f]')
   [...$('#rmFilter').children].forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));render();});
 $('#rmFind').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;act(b.dataset.a,ROOMS.find(r=>r.id===b.dataset.r));});
 $('#rmSweep').addEventListener('click',sweep);
-$('#rmBreak').addEventListener('click',()=>{const ok=ROOMS.filter(r=>!r.fault);if(!ok.length)return;
+$('#rmBreak').addEventListener('click',()=>{
+  if(Math.random()<.35){const fr=ROOMS.filter(r=>!r.occ&&!busy(r));if(fr.length){const r=fr[Math.floor(Math.random()*fr.length)];ghost(r,10+Math.floor(Math.random()*8));log('WATCH',r.name+' · booked but nobody came');render();return;}}
+  const ok=ROOMS.filter(r=>!r.fault);if(!ok.length)return;
   const r=ok[Math.floor(Math.random()*ok.length)];breakRoom(r,FKEYS[Math.floor(Math.random()*FKEYS.length)],0);render();});
 const tr=$('#tRooms'); if(tr)tr.addEventListener('click',()=>desk().setScreen('rooms',true));
 document.querySelectorAll('.aiseg').forEach(b=>b.addEventListener('click',()=>setTimeout(renderFindings,50)));
