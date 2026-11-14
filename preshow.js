@@ -43,6 +43,8 @@ const items=()=>ALL.filter(x=>x[5].split(' ').includes(showId())).map(x=>{const 
   return {id:x[0],tier:x[1],name:x[2],fall:x[3],opt:x[4],ok:s.ok,drop:s.drop};});
 const live=()=>items().filter(i=>!i.drop);
 const chain=n=>(Math.pow(PART,n)*100).toFixed(1);
+const fun=()=>{try{return localStorage.getItem('desk.humor')!=='0';}catch(_){return true;}};
+const leg=()=>fun()&&window.theatre?window.theatre.leg():null; /* Break a leg / Merde / Toi toi toi / Chookas */
 
 /* Style + button, injected so the page markup stays as it is */
 const css=document.createElement('style');css.textContent=`
@@ -114,7 +116,7 @@ function open(){
   $('#psNo').onclick=()=>{c.hidden=true;};
   $('#psGo').onclick=()=>{if(!ready)return;signed={at:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),n:L.length};
     desk().log('DIR','Pre-show plan signed · '+L.length+' links · '+cl+' cloud, all with fallbacks · chain '+chain(L.length)+'%');
-    desk().toast('Pre-show','Plan signed. GO for show. Break a leg!');paintBtn();c.hidden=true;};
+    {const g=leg();desk().toast('Pre-show','Plan signed. GO for show.'+(g?' '+g.say:''));}paintBtn();c.hidden=true;};
 }
 btn.addEventListener('click',open);
 const sh=$('#show'); if(sh)sh.addEventListener('change',()=>{load();paintBtn();});
@@ -133,15 +135,15 @@ function gaugeSVG(){
     '<g class="ndl" id="fuelNdl" style="transform:rotate(-90deg)"><line x1="160" y1="170" x2="160" y2="66" stroke="var(--blue)" stroke-width="6" stroke-linecap="round"/></g>'+
     '<circle cx="160" cy="170" r="13" fill="var(--blue)"/><circle cx="160" cy="170" r="5" fill="var(--panel)"/></svg>';}
 function splash(){
-  const L=live(),k=L.filter(i=>i.ok).length,pct=L.length?k/L.length:0,full=!!signed;
+  const L=live(),k=L.filter(i=>i.ok).length,pct=L.length?k/L.length:0,full=!!signed,g=full?leg():null;
   const box=document.createElement('div');box.className='introcard fuel';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
   const greet=(h=>h<12?'Good morning':h<18?'Good afternoon':'Good evening')(new Date().getHours());
   box.innerHTML='<div class="intro-in"><p class="ikicker">Director\'s Desk · '+(($('#show').selectedOptions[0]||{}).textContent||'')+'</p>'+
-    '<h2>'+greet+', Director.<br><span'+(full?' style="color:var(--ok)"':'')+'>'+(full?'Tank full.<br>Break a leg!':'Check the checklist first.')+'</span></h2>'+gaugeSVG()+
+    '<h2>'+greet+', Director.<br><span'+(full?' style="color:var(--ok)"':'')+'>'+(full?'Tank full.<br>'+(g?g.say:'GO for show.'):'Check the checklist first.')+'</span></h2>'+gaugeSVG()+
     '<p class="tank"><b>'+k+'/'+L.length+'</b> links checked'+(full?' · plan signed '+signed.at:'')+'</p>'+
-    '<p class="ailine">'+(full?'Every link checked and signed by a human. GO for a good show.<br><button type="button" class="whyleg" id="whyLeg">Why "break a leg"?</button><span class="legtxt" id="legTxt" hidden>Theatre luck said backwards, so you never wish "good luck" straight out. One stage story: the side curtains are the <b>legs</b>. Break the leg line, step past them, and you are on stage and getting paid.</span>':k?'Partway there. Finish the checklist before the first button.':'Empty tank. One dependency less, one less possible defect: check each link before the show.')+
+    '<p class="ailine">'+(full?'Every link checked and signed by a human. GO for a good show.'+(g?'<br><button type="button" class="whyleg" id="whyLeg">Why "'+g.say+'"?</button><span class="legtxt" id="legTxt" hidden><b>'+g.from+'.</b> '+g.why+'</span>':''):k?'Partway there. Finish the checklist before the first button.':'Empty tank. One dependency less, one less possible defect: check each link before the show.')+
     '<br>Chain at 99.9% per link: '+chain(L.length)+'%</p>'+
-    '<div class="irow">'+(full?'<button type="button" class="iplay go" id="fuelGo">Break a leg · open the desk</button><button type="button" class="iskip" id="fuelChk">Review checklist</button>'
+    '<div class="irow">'+(full?'<button type="button" class="iplay go" id="fuelGo">'+(g?g.say.replace(/!$/,'')+' · open the desk':'Open the desk')+'</button><button type="button" class="iskip" id="fuelChk">Review checklist</button>'
       :'<button type="button" class="iplay chk" id="fuelChk">Check the checklist</button><button type="button" class="iskip" id="fuelGo">Later</button>')+'</div></div>';
   document.body.append(box);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{$('#fuelNdl').style.transform='rotate('+(-90+180*pct)+'deg)';}));
@@ -152,7 +154,11 @@ function splash(){
   box.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
   setTimeout(()=>{try{(full?$('#fuelGo'):$('#fuelChk')).focus();}catch(_){}},60);
 }
-(function startSplash(){
+/* Load the Green Room (theatre.js) first, so the gauge can wish luck in its four theatre languages */
+const thx=document.createElement('script');thx.src='theatre.js';
+const thReady=new Promise(r=>{thx.onload=thx.onerror=r;setTimeout(r,2500);});
+document.body.appendChild(thx);
+thReady.then(function startSplash(){
   let shown=false;try{shown=sessionStorage.getItem('desk.fuel')==='1';}catch(_){}
   if(shown||location.hash||(($('#role')||{}).value||'Director')!=='Director')return;
   const go=()=>{try{sessionStorage.setItem('desk.fuel','1');}catch(_){}splash();};
@@ -160,7 +166,7 @@ function splash(){
   if(intro&&!intro.hidden){const mo=new MutationObserver(()=>{if(intro.hidden){mo.disconnect();
     if(!document.querySelector('.demobar:not([hidden])'))go();}});mo.observe(intro,{attributes:true,attributeFilter:['hidden']});}
   else go();
-})();
+});
 
 /* Before any button: ARE YOU SURE? also shows what the next cue leans on. Runs after the desk builds its card. */
 ays.addEventListener('click',()=>setTimeout(()=>{
@@ -178,8 +184,7 @@ ays.addEventListener('click',()=>setTimeout(()=>{
     (signed&&unchecked.length?'<p class="warn">Unchecked: '+unchecked.map(i=>i.name.split(' (')[0]).join(', ')+'</p>':'');
   const row=body.querySelector('.crow'); row?row.before(d):body.append(d);
   /* Law Six, Hamlet at the GO button (public domain, 1600). Humor off in the AI card turns it off here too. */
-  let fun=true;try{fun=localStorage.getItem('desk.humor')!=='0';}catch(_){}
-  if(fun&&row){const go=row.querySelector('.cgo'),no=row.querySelector('.cno');
+  if(fun()&&row){const go=row.querySelector('.cgo'),no=row.querySelector('.cno');
     row.insertAdjacentHTML('beforebegin','<p class="hamlet">To be, or not to be?</p>');
     if(go)go.textContent='To be · '+go.textContent.replace(/^GO · /,'GO ');
     if(no)no.textContent='Or not · not yet';}
@@ -188,7 +193,7 @@ ays.addEventListener('click',()=>setTimeout(()=>{
    Tradition: never name the Scottish play inside a theatre. If you do, step outside, turn around three times,
    spit over your left shoulder, say something rude, and knock to be let back in. Folklore, not proven. Harmless on purpose. */
 function scottish(form,input){const f=$(form);if(!f)return;
-  f.addEventListener('submit',e=>{const v=($(input)||{}).value||'';if(!/macbeth/i.test(v)||f.dataset.ourShow==='1'){f.dataset.ourShow='';return;}
+  f.addEventListener('submit',e=>{const v=($(input)||{}).value||'';if(!fun()||!/macbeth/i.test(v)||f.dataset.ourShow==='1'){f.dataset.ourShow='';return;}
     e.preventDefault();e.stopImmediatePropagation();
     const c=$('#aiCard');c.className='card2 ays';$('#aiCardTitle').textContent='The Scottish play!';
     const b=$('#aiCardBody');b.innerHTML='<p class="rule" style="color:var(--red)">You said it inside the theatre.</p>'+
@@ -196,7 +201,7 @@ function scottish(form,input){const f=$(form);if(!f)return;
       '<p class="ailine">Why: one legend says the witches\' chant in the play is a real spell, and the play has a long list of onstage accidents. Nobody has proven a curse. The cue was held, not sent.</p>'+
       '<div class="crow"><button type="button" class="cgo" id="mbDone">Ritual done · let me in</button><button type="button" class="cno" id="mbOurs">It\'s our show · send it</button></div>';
     c.hidden=false;desk().log('WATCH','Someone said the Scottish play · cue held');
-    $('#mbDone').onclick=()=>{c.hidden=true;$(input).value='';desk().log('DIR','Ritual done · back in the theatre');desk().toast('Floor','Knock knock. You may come back in. Break a leg!');};
+    $('#mbDone').onclick=()=>{c.hidden=true;$(input).value='';desk().log('DIR','Ritual done · back in the theatre');desk().toast('Floor','Knock knock. You may come back in. '+((leg()||{say:'Break a leg!'}).say));};
     $('#mbOurs').onclick=()=>{c.hidden=true;f.dataset.ourShow='1';desk().log('DIR','Scottish play is tonight\'s show · cue released');f.requestSubmit();};
   },true);}
 scottish('#cueForm','#cueInput'); scottish('#callForm','#callInput');
