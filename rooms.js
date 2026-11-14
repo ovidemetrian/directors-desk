@@ -4,6 +4,20 @@
    Real version: a small server reads Logitech Sync + CollabOS APIs and keeps the keys. This page never holds any. */
 (function(){
 const $=s=>document.querySelector(s);
+/* Cloud strip markup + styles injected here so index.html stays untouched */
+(function(){const g=document.getElementById('rmGrid');if(!g||document.getElementById('rmCloud'))return;
+  g.insertAdjacentHTML('beforebegin','<header class="rmh2"><h3>Cloud</h3><span class="lbl">the room is local · the meeting is not</span></header><div class="clgrid" id="rmCloud"></div>');
+  const n=document.querySelector('#rooms .simnote');if(n)n.insertAdjacentHTML('beforeend',' Cloud tiles: try <b>Take down</b> on Teams Rooms to replay the Nov 2026 Microsoft outage.');
+  const st=document.createElement('style');st.textContent=`
+.clgrid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-bottom:12px}
+.cl{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+.cl i{width:10px;height:10px;border-radius:50%;background:var(--ok);grid-row:span 2}
+.cl b{font-family:var(--display);font-size:16px;letter-spacing:.03em}
+.cl small{font-size:11px;color:var(--dim)}
+.cl .act{grid-column:1/-1;padding:6px 10px;margin-top:4px;justify-self:start}
+.cl.down{border-color:var(--red)} .cl.down i{background:var(--red);box-shadow:0 0 8px var(--red)} .cl.down small{color:var(--red)}
+.cl.local{border-color:var(--ok)} .cl.local i{box-shadow:0 0 8px var(--ok)}
+.rmg .fo{color:var(--blue);font-weight:600}`;document.head.appendChild(st);})();
 const desk=()=>window.deskAPI||{log(){},toast(){},aiMode:()=>'on',setScreen(){}};
 const log=(src,msg)=>desk().log(src,msg,'Rooms');
 const OFFICES=[{id:'sf',name:'San Francisco'},{id:'ny',name:'New York'},{id:'ldn',name:'London'}];
@@ -12,9 +26,9 @@ const FW_NOW='2.1.140', FW_NEW='2.1.162';
 const ROOMS=[
   ['sf','Golden Gate',12,'Rally Bar','Google Meet'],['sf','Twin Peaks',6,'Rally Bar Mini','Google Meet'],
   ['sf','Mission',4,'MeetUp 2','Google Meet'],['sf','Embarcadero',20,'Rally Bar + 4 mic pods','Google Meet'],
-  ['ny','Hudson',10,'Rally Bar','Google Meet'],['ny','Bowery',6,'Rally Bar Mini','Zoom Rooms'],
-  ['ny','Chelsea',4,'MeetUp 2','Google Meet'],['ny','Battery',16,'Rally Bar + 2 mic pods','Google Meet'],
-  ['ldn','Thames',12,'Rally Bar','Google Meet'],['ldn','Soho',6,'Rally Bar Mini','Google Meet'],
+  ['ny','Hudson',10,'Rally Bar','Google Meet'],['ny','Bowery',6,'Rally Bar Mini','Teams Rooms'],
+  ['ny','Chelsea',4,'MeetUp 2','Google Meet'],['ny','Battery',16,'Rally Bar + 2 mic pods','Teams Rooms'],
+  ['ldn','Thames',12,'Rally Bar','Google Meet'],['ldn','Soho',6,'Rally Bar Mini','Teams Rooms'],
   ['ldn','Camden',4,'MeetUp 2','Zoom Rooms'],['ldn','Greenwich',18,'Rally Bar + 4 mic pods','Google Meet']
 ].map((r,i)=>({id:'r'+i,office:r[0],name:r[1],seats:r[2],gear:r[3],plat:r[4],fw:FW_NOW,
   ck:{cam:1,mic:1,scr:1,net:1,cal:1},fault:null,history:0,busyUntil:null,occ:null}));
@@ -29,6 +43,30 @@ const FAULTS={
   freeze:{ck:'cam',sev:'down',what:'Video frozen in calls',evidence:'Last 3 meetings: camera stream stalls after ~20 min · thermal warning logged',fix:'Restart the device, then check airflow behind the TV',disruptive:true}
 };
 const FKEYS=Object.keys(FAULTS);
+
+/* ---------- Cloud health: the room is local, the meeting is not ----------
+   Nov 2026 lesson: one Microsoft cloud config change took Teams + Outlook down for two workdays.
+   Room hardware kept passing every check; there was simply nothing to connect to.
+   Rule: the show path (sound, cameras, lights, Core) never needs the cloud. Meetings fail over. */
+const CLOUD={'Google Meet':'ok','Zoom Rooms':'ok','Teams Rooms':'ok'};
+const BACKUP={'Teams Rooms':'Google Meet','Google Meet':'Zoom Rooms','Zoom Rooms':'Google Meet'};
+let cloudSince=null;
+const cloudDown=r=>CLOUD[r.plat]==='down';
+function cloudBreak(plat){CLOUD[plat]='down';cloudSince=now();
+  log('FAIL',plat+' cloud down · '+ROOMS.filter(r=>r.plat===plat).length+' rooms cannot join meetings · room hardware still passes');render();}
+function cloudRestore(plat){CLOUD[plat]='ok';log('WATCH',plat+' cloud back');render();}
+function failover(plat,how){const to=BACKUP[plat],list=ROOMS.filter(r=>r.plat===plat);
+  list.forEach(r=>{r.home=plat;r.plat=to;});
+  log(how==='hand'?'DIR':'CLAUDE',list.map(r=>r.name).join(', ')+' · moved '+plat+' → '+to+' · invites resent with '+to+' links'+(how==='hand'?' (by hand)':' · approved by director'));
+  desk().toast('Rooms',list.length+' rooms now on '+to);render();}
+function goHome(plat,how){const list=ROOMS.filter(r=>r.home===plat);
+  list.forEach(r=>{r.plat=plat;r.home=null;});
+  log(how==='hand'?'DIR':'CLAUDE',list.map(r=>r.name).join(', ')+' · back on '+plat+' after current meetings'+(how==='hand'?' (by hand)':' · approved by director'));render();}
+function renderCloud(){const el=$('#rmCloud');if(!el)return;
+  const tiles=Object.keys(CLOUD).map(p=>{const n=ROOMS.filter(r=>r.plat===p).length,away=ROOMS.filter(r=>r.home===p).length,d=CLOUD[p]==='down';
+    return '<div class="cl '+(d?'down':'ok')+'"><i></i><b>'+p+'</b><small>'+(d?'DOWN since '+hhmm(cloudSince):'up')+' · '+n+' rooms'+(away?' · '+away+' away':'')+'</small>'+
+      '<button class="act" data-c="'+p+'">'+(d?'Restore':'Take down')+' <small>demo</small></button></div>';}).join('');
+  el.innerHTML='<div class="cl local"><i></i><b>Local show path</b><small>Sound · cameras · lights · Core · no cloud needed</small></div>'+tiles;}
 let filter='all', tickets=[], tNo=100, ring=0, ringBusy=false, sweeping=false;
 const now=()=>new Date();
 const hhmm=d=>d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false});
@@ -47,7 +85,7 @@ function breakRoom(r,key,history,quiet){
 function ghost(r,mins){const d=now();d.setMinutes(d.getMinutes()+50-mins);r.busyUntil=d;r.occ={type:'ghost',mins:mins};}
 function occLine(r){const o=r.occ;if(!o)return busy(r)?'In a meeting until '+hhmm(r.busyUntil):'Free';
   return o.type==='ghost'?'Booked · nobody here for '+o.mins+' min':o.people+' people · not booked';}
-function status(r){return r.fault?FAULTS[r.fault].sev:'ok';}
+function status(r){return r.fault?FAULTS[r.fault].sev:cloudDown(r)?'warn':'ok';}
 function busy(r){return r.busyUntil&&r.busyUntil>now();}
 
 /* ---------- Render ---------- */
@@ -59,20 +97,34 @@ function render(){
   $('#rmGrid').innerHTML=list.map(r=>{
     const st=status(r), f=r.fault&&FAULTS[r.fault];
     return '<div class="rm '+st+'"><div class="rmh"><i></i><b>'+r.name+'</b><span class="lbl">'+OFFICES.find(o=>o.id===r.office).name+'</span></div>'+
-      '<div class="rmg">'+r.gear+' · '+r.plat+' · '+r.seats+' seats</div>'+
+      '<div class="rmg">'+r.gear+' · '+r.plat+(r.home?' <span class="fo">failover from '+r.home+'</span>':'')+' · '+r.seats+' seats</div>'+
       '<div class="rmck">'+CHECKS.map(([k,l])=>'<span class="'+(r.ck[k]?'y':'n')+'" title="'+l+'">'+l+'</span>').join('')+'</div>'+
-      '<div class="rmf">'+(f?f.what:'All checks pass')+'</div>'+
+      '<div class="rmf">'+(f?f.what:cloudDown(r)?'Hardware OK · '+r.plat+' cloud down':'All checks pass')+'</div>'+
       '<div class="rmb"><span'+(r.occ?' class="occ"':'')+'>'+occLine(r)+'</span><span class="num">CollabOS '+r.fw+'</span></div></div>';
   }).join('');
-  renderFindings(); renderRing(); renderTickets();
+  renderCloud(); renderFindings(); renderRing(); renderTickets();
 }
 
 /* ---------- Claude's findings: proposes, never acts alone ---------- */
 function renderFindings(){
   const m=desk().aiMode(), box=$('#rmFind'), bad=ROOMS.filter(r=>r.fault), occ=ROOMS.filter(r=>r.occ);
-  if(m==='off'){box.innerHTML='<p class="rmnote">AI is OFF. The tiles still show health; you diagnose and fix by hand.</p>';return;}
-  if(!bad.length&&!occ.length){box.innerHTML='<p class="rmnote">Claude: every room passes. Nothing to fix.</p>';return;}
-  box.innerHTML=bad.map(r=>{const f=FAULTS[r.fault];
+  const downP=Object.keys(CLOUD).filter(p=>CLOUD[p]==='down'&&ROOMS.some(r=>r.plat===p));
+  const homeP=Object.keys(CLOUD).filter(p=>CLOUD[p]==='ok'&&ROOMS.some(r=>r.home===p));
+  if(m==='off'){box.innerHTML='<p class="rmnote">AI is OFF. The tiles still show health; you diagnose and fix by hand.</p>'+
+    downP.map(p=>'<div class="rmacts"><button class="act" data-a="cfo" data-p="'+p+'">Move '+p+' rooms to '+BACKUP[p]+' by hand</button></div>').join('');return;}
+  const cloudCards=downP.map(p=>{const list=ROOMS.filter(r=>r.plat===p),to=BACKUP[p],inMtg=list.filter(busy).length;
+    const acts=m==='watch'?'<button class="act" data-a="cfo" data-p="'+p+'">Moved by hand</button><button class="act" data-a="cwait" data-p="'+p+'">Wait it out</button>'
+      :'<button class="act okb" data-a="cfo" data-p="'+p+'">Fail over to '+to+'</button><button class="act aysb" data-a="cays" data-p="'+p+'">Are you sure?</button><button class="act" data-a="cwait" data-p="'+p+'">Wait it out</button>';
+    return '<div class="fd down"><p class="fh"><b>'+p+' cloud</b> · down · '+list.length+' rooms can\'t join meetings</p>'+
+      '<p class="ev">'+(list.filter(r=>!r.fault).map(r=>r.name).join(', ')||'No room')+': camera, mics, display, network all pass · sign-in and join fail · vendor status page red'+(list.some(r=>r.fault)?' · '+list.filter(r=>r.fault).map(r=>r.name).join(', ')+(list.filter(r=>r.fault).length>1?' also have local faults':' also has a local fault')+', listed below':'')+'</p>'+
+      '<p class="pr">'+(m==='watch'?'Claude would: ':'Claude proposes: ')+'move these rooms to '+to+' and resend today\'s invites with '+to+' links. Nothing local is touched.</p>'+
+      (inMtg?'<p class="rec">'+inMtg+' room(s) booked now. People rejoin from the new link.</p>':'')+
+      '<p class="rec">Not a reset problem: restarting a healthy room will not bring a dead cloud back.</p><div class="rmacts">'+acts+'</div></div>';}).join('')+
+    homeP.map(p=>'<div class="fd occ"><p class="fh"><b>'+p+' is back</b></p><p class="pr">'+(m==='watch'?'Claude would: ':'Claude proposes: ')+'move rooms home after their current meetings end.</p><div class="rmacts">'+
+      (m==='watch'?'<button class="act" data-a="chome" data-p="'+p+'">Moved back by hand</button>':'<button class="act okb" data-a="chome" data-p="'+p+'">Move them home</button>')+
+      '<button class="act" data-a="cstay" data-p="'+p+'">Stay on backup today</button></div></div>').join('');
+  if(!bad.length&&!occ.length&&!cloudCards){box.innerHTML='<p class="rmnote">Claude: every room passes. Nothing to fix.</p>';return;}
+  box.innerHTML=cloudCards+bad.map(r=>{const f=FAULTS[r.fault];
     const rec=r.history>=2?'<p class="rec">Recurring: '+(r.history+1)+' times in 3 weeks. Another reset only hides it. Claude suggests a ticket to AV Engineering for the root cause.</p>':'';
     const wait=f.disruptive&&busy(r)?'<p class="rec">This room is in a meeting until '+hhmm(r.busyUntil)+'. The fix drops the call.</p>':'';
     let acts;
@@ -95,6 +147,13 @@ function fixRoom(r,how){
   const f=FAULTS[r.fault]; r.ck[f.ck]=1; r.fault=null;
   log(how==='hand'?'DIR':'CLAUDE',r.name+' · '+f.fix+(how==='hand'?' (by hand)':' · approved by director')+' · re-tested, all checks pass');
   desk().toast('Rooms',r.name+' is healthy again'); render();
+}
+function cloudAct(a,p){const m=desk().aiMode(),how=m==='on'?'claude':'hand';
+  if(a==='cfo'){if(m==='on'||m==='watch'||m==='off')failover(p,how);}
+  else if(a==='cays')desk().toast('Claude · are you sure?','The rooms stay as they are; only the meeting platform changes. People in a call now drop and rejoin from the new link, about 30 seconds. Outside guests get a fresh invite. When '+p+' is back, I will ask before moving anyone home.');
+  else if(a==='cwait'){log('DIR',p+' · waiting it out · rooms stay on '+p);ROOMS.filter(r=>r.plat===p).forEach(r=>r.waiting=1);desk().toast('Rooms','Holding. Meetings on '+p+' stay dark until it returns.');}
+  else if(a==='chome')goHome(p,how);
+  else if(a==='cstay'){ROOMS.filter(r=>r.home===p).forEach(r=>r.home=null);log('DIR','Staying on backup today · '+p+' rooms keep their new platform');render();}
 }
 function act(a,r){
   if(a.startsWith('occ')){const o=r.occ;if(!o)return;const g=o.type==='ghost';
@@ -157,8 +216,9 @@ function renderTickets(){
 /* ---------- Wire up ---------- */
 $('#rmFilter').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;filter=b.dataset.f;
   [...$('#rmFilter').children].forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));render();});
-$('#rmFind').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;act(b.dataset.a,ROOMS.find(r=>r.id===b.dataset.r));});
+$('#rmFind').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;if(b.dataset.p){cloudAct(b.dataset.a,b.dataset.p);return;}act(b.dataset.a,ROOMS.find(r=>r.id===b.dataset.r));});
 $('#rmSweep').addEventListener('click',sweep);
+$('#rmCloud').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;const p=b.dataset.c;CLOUD[p]==='down'?cloudRestore(p):cloudBreak(p);});
 $('#rmBreak').addEventListener('click',()=>{
   if(Math.random()<.35){const fr=ROOMS.filter(r=>!r.occ&&!busy(r));if(fr.length){const r=fr[Math.floor(Math.random()*fr.length)];ghost(r,10+Math.floor(Math.random()*8));log('WATCH',r.name+' · booked but nobody came');render();return;}}
   const ok=ROOMS.filter(r=>!r.fault);if(!ok.length)return;
