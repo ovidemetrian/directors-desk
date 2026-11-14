@@ -58,10 +58,11 @@ const css=document.createElement('style');css.textContent=`
 .ps .it b{font-weight:600} .ps .it small{grid-column:2;color:var(--dim);font-size:12px}
 .ps .it.drop b,.ps .it.drop small{text-decoration:line-through;opacity:.5}
 .ps .dropb{font-size:11px;padding:4px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--dim);cursor:pointer}
-.ps .ros{display:grid;gap:4px;font-size:13px} .ps .ros span{color:var(--dim)} .ps .ros .cl{color:var(--blue)}
+.ps .ros{display:grid;gap:4px;font-size:13px} .ps .ros span{color:var(--dim)} .ps .ros .ccl{color:var(--blue)}
 .ps .cgo:disabled{opacity:.4;cursor:not-allowed}
 .ays-deps{border-top:1px solid var(--line);padding-top:6px;font-size:13px}
-.ays-deps .cl{color:var(--blue)} .ays-deps .warn{color:var(--yellow)}
+.ays-deps .ccl{color:var(--blue)} .ays-deps .warn{color:var(--yellow)}
+.hamlet{margin:6px 0 0;font-family:var(--display);font-style:italic;font-size:20px;color:var(--yellow);text-align:center}
 .fuel .intro-in{border-color:var(--blue);text-align:center}
 .fuel h2 span{color:var(--yellow)}
 .fuel svg{width:min(100%,320px);height:auto;display:block;margin:4px auto 0}
@@ -98,7 +99,7 @@ function open(){
     b.append(box);}
   b.insertAdjacentHTML('beforeend','<h4>Run of show · what each cue leans on</h4><div class="ros">'+Object.keys(NEEDS).map(k=>{
     const ids=new Set(live().map(i=>i.id)),need=NEEDS[k].filter(x=>ids.has(x));
-    const nm=id=>{const i=items().find(z=>z.id===id);return i?(i.tier==='cld'?'<span class="cl">'+i.name.split(' (')[0]+'</span>':i.name.split(' (')[0]):'';};
+    const nm=id=>{const i=items().find(z=>z.id===id);return i?(i.tier==='cld'?'<span class="ccl">'+i.name.split(' (')[0]+'</span>':i.name.split(' (')[0]):'';};
     const gone=NEEDS[k].filter(x=>!ids.has(x)&&items().some(i=>i.id===x));
     return '<div><b>'+k+'</b> <span>· '+need.length+' links · </span>'+need.map(nm).join(', ')+
       (gone.length?' <b style="color:var(--yellow)">· needs dropped: '+gone.map(id=>items().find(i=>i.id===id).name.split(' (')[0]).join(', ')+'</b>':'')+'</div>';}).join('')+'</div>');
@@ -170,12 +171,18 @@ ays.addEventListener('click',()=>setTimeout(()=>{
   const unchecked=its.filter(i=>!i.ok), cloud=its.filter(i=>i.tier==='cld');
   const gone=(NEEDS[k]||[]).filter(x=>!ids.has(x)).map(id=>items().find(i=>i.id===id)).filter(Boolean);
   const d=document.createElement('div');d.className='ays-deps';
-  d.innerHTML='<h4 style="margin-top:0">This cue leans on '+its.length+' links</h4><p>'+its.map(i=>i.tier==='cld'?'<span class="cl">'+i.name.split(' (')[0]+'</span>':i.name.split(' (')[0]).join(' · ')+'</p>'+
-    (cloud.length?'<p class="cl">Cloud: '+cloud.map(i=>i.name.split(' (')[0]+' → '+i.fall).join(' · ')+'</p>':'')+
+  d.innerHTML='<h4 style="margin-top:0">This cue leans on '+its.length+' links</h4><p>'+its.map(i=>i.tier==='cld'?'<span class="ccl">'+i.name.split(' (')[0]+'</span>':i.name.split(' (')[0]).join(' · ')+'</p>'+
+    (cloud.length?'<p class="ccl">Cloud: '+cloud.map(i=>i.name.split(' (')[0]+' → '+i.fall).join(' · ')+'</p>':'')+
     (gone.length?'<p class="warn">Dropped in the plan, but this cue needs it: '+gone.map(i=>i.name.split(' (')[0]).join(', ')+'</p>':'')+
     (signed?'':'<p class="warn">Pre-show plan not signed yet.</p>')+
     (signed&&unchecked.length?'<p class="warn">Unchecked: '+unchecked.map(i=>i.name.split(' (')[0]).join(', ')+'</p>':'');
   const row=body.querySelector('.crow'); row?row.before(d):body.append(d);
+  /* Law Six, Hamlet at the GO button (public domain, 1600). Humor off in the AI card turns it off here too. */
+  let fun=true;try{fun=localStorage.getItem('desk.humor')!=='0';}catch(_){}
+  if(fun&&row){const go=row.querySelector('.cgo'),no=row.querySelector('.cno');
+    row.insertAdjacentHTML('beforebegin','<p class="hamlet">To be, or not to be?</p>');
+    if(go)go.textContent='To be · '+go.textContent.replace(/^GO · /,'GO ');
+    if(no)no.textContent='Or not · not yet';}
 },0));
 /* Theatre superstition, Law Six: say "Macbeth" in a cue or crew call and the desk catches it.
    Tradition: never name the Scottish play inside a theatre. If you do, step outside, turn around three times,
