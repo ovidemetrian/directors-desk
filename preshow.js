@@ -67,6 +67,8 @@ const css=document.createElement('style');css.textContent=`
 .fuel svg{width:min(100%,320px);height:auto;display:block;margin:4px auto 0}
 .fuel .ndl{transform-origin:160px 170px;transition:transform 1.6s cubic-bezier(.2,.8,.2,1.15)}
 .fuel .tank{font-family:var(--display);font-size:22px;margin:0 0 4px} .fuel .tank b{color:var(--fg)}
+.fuel .whyleg{margin-top:6px;background:none;border:0;color:var(--blue);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer}
+.fuel .legtxt{display:block;margin-top:6px;font-size:13px;color:var(--fg)} .fuel .legtxt b{color:var(--yellow)}
 .fuel .irow{justify-content:center} .fuel .iplay.go{background:var(--ok);color:#03210f} .fuel .iplay.chk{background:var(--yellow);color:#1f1600}`;
 document.head.appendChild(css);
 const ays=$('#aysBtn'); if(!ays)return;
@@ -111,7 +113,7 @@ function open(){
   $('#psNo').onclick=()=>{c.hidden=true;};
   $('#psGo').onclick=()=>{if(!ready)return;signed={at:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),n:L.length};
     desk().log('DIR','Pre-show plan signed · '+L.length+' links · '+cl+' cloud, all with fallbacks · chain '+chain(L.length)+'%');
-    desk().toast('Pre-show','Plan signed. GO for show.');paintBtn();c.hidden=true;};
+    desk().toast('Pre-show','Plan signed. GO for show. Break a leg!');paintBtn();c.hidden=true;};
 }
 btn.addEventListener('click',open);
 const sh=$('#show'); if(sh)sh.addEventListener('change',()=>{load();paintBtn();});
@@ -134,17 +136,18 @@ function splash(){
   const box=document.createElement('div');box.className='introcard fuel';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
   const greet=(h=>h<12?'Good morning':h<18?'Good afternoon':'Good evening')(new Date().getHours());
   box.innerHTML='<div class="intro-in"><p class="ikicker">Director\'s Desk · '+(($('#show').selectedOptions[0]||{}).textContent||'')+'</p>'+
-    '<h2>'+greet+', Director.<br><span'+(full?' style="color:var(--ok)"':'')+'>'+(full?'Tank full.':'Check the checklist first.')+'</span></h2>'+gaugeSVG()+
+    '<h2>'+greet+', Director.<br><span'+(full?' style="color:var(--ok)"':'')+'>'+(full?'Tank full.<br>Break a leg!':'Check the checklist first.')+'</span></h2>'+gaugeSVG()+
     '<p class="tank"><b>'+k+'/'+L.length+'</b> links checked'+(full?' · plan signed '+signed.at:'')+'</p>'+
-    '<p class="ailine">'+(full?'Every link checked and signed by a human. GO for a good show.':k?'Partway there. Finish the checklist before the first button.':'Empty tank. One dependency less, one less possible defect: check each link before the show.')+
+    '<p class="ailine">'+(full?'Every link checked and signed by a human. GO for a good show.<br><button type="button" class="whyleg" id="whyLeg">Why "break a leg"?</button><span class="legtxt" id="legTxt" hidden>Theatre luck said backwards, so you never wish "good luck" straight out. One stage story: the side curtains are the <b>legs</b>. Break the leg line, step past them, and you are on stage and getting paid.</span>':k?'Partway there. Finish the checklist before the first button.':'Empty tank. One dependency less, one less possible defect: check each link before the show.')+
     '<br>Chain at 99.9% per link: '+chain(L.length)+'%</p>'+
-    '<div class="irow">'+(full?'<button type="button" class="iplay go" id="fuelGo">Open the desk</button><button type="button" class="iskip" id="fuelChk">Review checklist</button>'
+    '<div class="irow">'+(full?'<button type="button" class="iplay go" id="fuelGo">Break a leg · open the desk</button><button type="button" class="iskip" id="fuelChk">Review checklist</button>'
       :'<button type="button" class="iplay chk" id="fuelChk">Check the checklist</button><button type="button" class="iskip" id="fuelGo">Later</button>')+'</div></div>';
   document.body.append(box);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{$('#fuelNdl').style.transform='rotate('+(-90+180*pct)+'deg)';}));
   const close=()=>box.remove();
   $('#fuelGo').onclick=()=>{close();if(!full)desk().log('DIR','Started without a signed pre-show plan · tank '+k+'/'+L.length);};
   $('#fuelChk').onclick=()=>{close();open();};
+  const wl=$('#whyLeg');if(wl)wl.onclick=()=>{$('#legTxt').hidden=false;wl.hidden=true;};
   box.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
   setTimeout(()=>{try{(full?$('#fuelGo'):$('#fuelChk')).focus();}catch(_){}},60);
 }
