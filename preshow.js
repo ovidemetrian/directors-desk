@@ -31,7 +31,13 @@ const ALL=[
 /* What each scene leans on. Before any button, ARE YOU SURE? shows this. */
 const NEEDS={'Walk-in':['play','cams','dmx','pa','stream'],'Presentation':['lav','cams','dmx','pa','meet','stream'],
              'Q&A':['lav','hh','cams','dmx','pa','meet','stream'],'Break':['play','cams','dmx','pa','stream']};
-const st={}; let signed=null;
+let st={}, signed=null;
+/* Keep today's checklist per show, so closing the app does not empty the tank. A new day or a new show starts empty. */
+const today=()=>new Date().toLocaleDateString('en-CA'); /* local date, not UTC */
+function save(){try{localStorage.setItem('desk.preshow',JSON.stringify({d:today(),show:($('#show')||{}).value,st,signed}));}catch(_){}}
+function load(){try{const o=JSON.parse(localStorage.getItem('desk.preshow')||'null');
+  if(o&&o.d===today()&&o.show===($('#show')||{}).value){st=o.st||{};signed=o.signed||null;}else{st={};signed=null;}}catch(_){st={};signed=null;}}
+load();
 const showId=()=>($('#show')&&$('#show').value)||'hall-a';
 const items=()=>ALL.filter(x=>x[5].split(' ').includes(showId())).map(x=>{const s=st[x[0]]||(st[x[0]]={ok:0,drop:0});
   return {id:x[0],tier:x[1],name:x[2],fall:x[3],opt:x[4],ok:s.ok,drop:s.drop};});
@@ -55,13 +61,20 @@ const css=document.createElement('style');css.textContent=`
 .ps .ros{display:grid;gap:4px;font-size:13px} .ps .ros span{color:var(--dim)} .ps .ros .cl{color:var(--blue)}
 .ps .cgo:disabled{opacity:.4;cursor:not-allowed}
 .ays-deps{border-top:1px solid var(--line);padding-top:6px;font-size:13px}
-.ays-deps .cl{color:var(--blue)} .ays-deps .warn{color:var(--yellow)}`;
+.ays-deps .cl{color:var(--blue)} .ays-deps .warn{color:var(--yellow)}
+.fuel .intro-in{border-color:var(--blue);text-align:center}
+.fuel h2 span{color:var(--yellow)}
+.fuel svg{width:min(100%,320px);height:auto;display:block;margin:4px auto 0}
+.fuel .ndl{transform-origin:160px 170px;transition:transform 1.6s cubic-bezier(.2,.8,.2,1.15)}
+.fuel .tank{font-family:var(--display);font-size:22px;margin:0 0 4px} .fuel .tank b{color:var(--fg)}
+.fuel .irow{justify-content:center} .fuel .iplay.go{background:var(--ok);color:#03210f} .fuel .iplay.chk{background:var(--yellow);color:#1f1600}`;
 document.head.appendChild(css);
 const ays=$('#aysBtn'); if(!ays)return;
 const btn=document.createElement('button');btn.type='button';btn.className='ays psb';btn.id='psBtn';
 ays.before(btn);
 function paintBtn(){btn.className='ays psb'+(signed?' done':'');
-  btn.innerHTML=(signed?'PLAN ✓':'PRE-SHOW')+'<small>'+(signed?'signed '+signed.at:'plan · checklist')+'</small>';}
+  const L=live(),k=L.filter(i=>i.ok).length;
+  btn.innerHTML=(signed?'PLAN ✓':'PRE-SHOW')+'<small>'+(signed?'signed '+signed.at:'tank '+k+'/'+L.length+' · checklist')+'</small>';save();}
 paintBtn();
 
 function open(){
@@ -101,7 +114,49 @@ function open(){
     desk().toast('Pre-show','Plan signed. GO for show.');paintBtn();c.hidden=true;};
 }
 btn.addEventListener('click',open);
-const sh=$('#show'); if(sh)sh.addEventListener('change',()=>{signed=null;paintBtn();});
+const sh=$('#show'); if(sh)sh.addEventListener('change',()=>{load();paintBtn();});
+
+/* Start-up splash for the Director: a fuel gauge for the show. Empty tank = check the checklist first. */
+function gaugeSVG(){
+  /* 180° dial, E at left, F at right. Vector so it stays sharp from phone to TV. */
+  const arc=(a0,a1,col)=>{const r=120,cx=160,cy=170,p=a=>[cx+r*Math.cos(Math.PI*(1-a)),cy-r*Math.sin(Math.PI*(1-a))];
+    const [x0,y0]=p(a0),[x1,y1]=p(a1);return '<path d="M'+x0.toFixed(1)+' '+y0.toFixed(1)+' A120 120 0 0 1 '+x1.toFixed(1)+' '+y1.toFixed(1)+'" stroke="'+col+'" stroke-width="22" fill="none"/>';};
+  const ticks=[0,.25,.5,.75,1].map(a=>{const c=Math.cos(Math.PI*(1-a)),n=Math.sin(Math.PI*(1-a));
+    return '<line x1="'+(160+96*c).toFixed(1)+'" y1="'+(170-96*n).toFixed(1)+'" x2="'+(160+84*c).toFixed(1)+'" y2="'+(170-84*n).toFixed(1)+'" stroke="currentColor" stroke-width="3"/>';}).join('');
+  return '<svg viewBox="0 0 320 200" role="img" aria-label="Show readiness gauge">'+
+    arc(0,.34,'var(--red)')+arc(.34,.67,'var(--yellow)')+arc(.67,1,'var(--ok)')+'<g style="color:var(--dim)">'+ticks+'</g>'+
+    '<text x="22" y="194" fill="var(--red)" font-family="var(--display)" font-size="22" font-weight="700">E</text>'+
+    '<text x="284" y="194" fill="var(--ok)" font-family="var(--display)" font-size="22" font-weight="700">F</text>'+
+    '<g class="ndl" id="fuelNdl" style="transform:rotate(-90deg)"><line x1="160" y1="170" x2="160" y2="66" stroke="var(--blue)" stroke-width="6" stroke-linecap="round"/></g>'+
+    '<circle cx="160" cy="170" r="13" fill="var(--blue)"/><circle cx="160" cy="170" r="5" fill="var(--panel)"/></svg>';}
+function splash(){
+  const L=live(),k=L.filter(i=>i.ok).length,pct=L.length?k/L.length:0,full=!!signed;
+  const box=document.createElement('div');box.className='introcard fuel';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
+  const greet=(h=>h<12?'Good morning':h<18?'Good afternoon':'Good evening')(new Date().getHours());
+  box.innerHTML='<div class="intro-in"><p class="ikicker">Director\'s Desk · '+(($('#show').selectedOptions[0]||{}).textContent||'')+'</p>'+
+    '<h2>'+greet+', Director.<br><span'+(full?' style="color:var(--ok)"':'')+'>'+(full?'Tank full.':'Check the checklist first.')+'</span></h2>'+gaugeSVG()+
+    '<p class="tank"><b>'+k+'/'+L.length+'</b> links checked'+(full?' · plan signed '+signed.at:'')+'</p>'+
+    '<p class="ailine">'+(full?'Every link checked and signed by a human. GO for a good show.':k?'Partway there. Finish the checklist before the first button.':'Empty tank. One dependency less, one less possible defect: check each link before the show.')+
+    '<br>Chain at 99.9% per link: '+chain(L.length)+'%</p>'+
+    '<div class="irow">'+(full?'<button type="button" class="iplay go" id="fuelGo">Open the desk</button><button type="button" class="iskip" id="fuelChk">Review checklist</button>'
+      :'<button type="button" class="iplay chk" id="fuelChk">Check the checklist</button><button type="button" class="iskip" id="fuelGo">Later</button>')+'</div></div>';
+  document.body.append(box);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{$('#fuelNdl').style.transform='rotate('+(-90+180*pct)+'deg)';}));
+  const close=()=>box.remove();
+  $('#fuelGo').onclick=()=>{close();if(!full)desk().log('DIR','Started without a signed pre-show plan · tank '+k+'/'+L.length);};
+  $('#fuelChk').onclick=()=>{close();open();};
+  box.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+  setTimeout(()=>{try{(full?$('#fuelGo'):$('#fuelChk')).focus();}catch(_){}},60);
+}
+(function startSplash(){
+  let shown=false;try{shown=sessionStorage.getItem('desk.fuel')==='1';}catch(_){}
+  if(shown||location.hash||(($('#role')||{}).value||'Director')!=='Director')return;
+  const go=()=>{try{sessionStorage.setItem('desk.fuel','1');}catch(_){}splash();};
+  const intro=$('#introCard');
+  if(intro&&!intro.hidden){const mo=new MutationObserver(()=>{if(intro.hidden){mo.disconnect();
+    if(!document.querySelector('.demobar:not([hidden])'))go();}});mo.observe(intro,{attributes:true,attributeFilter:['hidden']});}
+  else go();
+})();
 
 /* Before any button: ARE YOU SURE? also shows what the next cue leans on. Runs after the desk builds its card. */
 ays.addEventListener('click',()=>setTimeout(()=>{

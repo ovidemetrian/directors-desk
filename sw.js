@@ -1,4 +1,4 @@
-const C='desk-v10',F=['./','index.html','manifest.json','icon.svg','badge.css','badge.js','desk.js','rooms.js','preshow.js'];
+const C='desk-v11',F=['./','index.html','manifest.json','icon.svg','badge.css','badge.js','desk.js','rooms.js','preshow.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F)));self.skipWaiting();});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim();});
 /* Network first for the desk's own files, so a fresh push shows on the very next open.
