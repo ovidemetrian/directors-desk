@@ -725,6 +725,9 @@ async function claudeWrite(patch,what){
   if(fault&&Math.random()<0.25){addLog('CLAUDE',what+' (sent)',myRole,'Claude');return false;} // dropped on the wire
   return write(patch,'CLAUDE',what);
 }
+/* A newer light or scene cue that lands before this one's fade ends replaces it. That is the director moving on, not a fault:
+   log it plainly and leave the newer cue's own read-back alone. */
+async function superseded(label,myAt){if(S.lx&&S.lx.at!==myAt){await write({},'CORE',label+' replaced by a newer cue before its fade finished (now '+(S.preset&&PRESETS[S.preset]?PRESETS[S.preset].label:lxName())+') · not a fault');return true;}return false;}
 async function verifyLog(ok,okMsg,badMsg){if(lastAI&&lastAI.verified===null){lastAI.verified=ok;lastAI.msg=ok?okMsg:badMsg;badge(a=>a.cls(ok?'okp':'badp',1400));}await write({},ok?'CORE':'FAIL',ok?okMsg:badMsg);}
 const chIds=CH.map(c=>c.id);
 const tools=[
@@ -746,7 +749,9 @@ const tools=[
     inputSchema:{type:'object',properties:{scene:{type:'string',enum:Object.keys(PRESETS)}},required:['scene']},
     async execute(i){guardAI();guardOwn('scene');guardHush();guardBlackout();const k=String(i.scene);const p=PRESETS[k];if(!p)throw new Error('Unknown scene '+k);
       await claudeWrite(Object.assign(presetPatch(k),{preset:k}),'Scene → '+p.label+' · audio, camera, LX '+LX[k].n);
+      const myAt=S.lx&&S.lx.at;
       await wait(Math.min(6,LX[k].fade)*1000+150);
+      if(await superseded(p.label,myAt))return {scene:k,readback:snapshot(),verified:null,superseded:true};
       const rb=await readback();
       const okA=Object.entries(p.ch).every(([id,[lv,mu]])=>rb.ch[id].level===lv&&rb.ch[id].mute===mu)&&rb.cam===p.cam;
       const okL=lxMatch(rb,LX[k].lv); const ok=okA&&okL;
@@ -756,8 +761,8 @@ const tools=[
     inputSchema:{type:'object',properties:{look:{type:'string',enum:LX_ORDER},sub:{type:'string',enum:SUBS.map(x=>x.id)},level:{type:'number'}}},
     async execute(i){guardAI();guardOwn('lights');guardBlackout();
       if(i.look!==undefined){const k=String(i.look);const L=LX[k];if(!L)throw new Error('Unknown look '+k);
-        await claudeWrite(Object.assign(lxPatch(k),{preset:null}),'LX '+L.n+' '+L.label+' · '+L.fade+' s fade');
-        await wait(Math.min(6,L.fade)*1000+150);const rb=await readback();const ok=lxMatch(rb,L.lv);
+        await claudeWrite(Object.assign(lxPatch(k),{preset:null}),'LX '+L.n+' '+L.label+' · '+L.fade+' s fade');const myAt=S.lx&&S.lx.at;
+        await wait(Math.min(6,L.fade)*1000+150);if(await superseded('LX '+L.n,myAt))return {look:k,readback:snapshot().lights,verified:null,superseded:true};const rb=await readback();const ok=lxMatch(rb,L.lv);
         await verifyLog(ok,'LX '+L.n+' read back ✓ fade complete','LX '+L.n+' did not take ✗');
         return {look:k,readback:snapshot().lights,verified:ok};}
       if(i.sub!==undefined){const id=String(i.sub);const x=SUBS.find(s=>s.id===id);if(!x)throw new Error('Unknown sub '+id);if(i.level===undefined)throw new Error('Give a level 0-100');
