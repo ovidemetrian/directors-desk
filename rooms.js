@@ -228,3 +228,5 @@ document.querySelectorAll('.aiseg').forEach(b=>b.addEventListener('click',()=>se
 setInterval(render,30000);
 seed(); render();
 })();
+/* Load the pre-show plan module (preshow.js) without touching index.html */
+(function(){const x=document.createElement('script');x.src='preshow.js';document.body.appendChild(x);})();
