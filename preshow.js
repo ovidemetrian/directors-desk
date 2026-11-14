@@ -177,4 +177,20 @@ ays.addEventListener('click',()=>setTimeout(()=>{
     (signed&&unchecked.length?'<p class="warn">Unchecked: '+unchecked.map(i=>i.name.split(' (')[0]).join(', ')+'</p>':'');
   const row=body.querySelector('.crow'); row?row.before(d):body.append(d);
 },0));
+/* Theatre superstition, Law Six: say "Macbeth" in a cue or crew call and the desk catches it.
+   Tradition: never name the Scottish play inside a theatre. If you do, step outside, turn around three times,
+   spit over your left shoulder, say something rude, and knock to be let back in. Folklore, not proven. Harmless on purpose. */
+function scottish(form,input){const f=$(form);if(!f)return;
+  f.addEventListener('submit',e=>{const v=($(input)||{}).value||'';if(!/macbeth/i.test(v)||f.dataset.ourShow==='1'){f.dataset.ourShow='';return;}
+    e.preventDefault();e.stopImmediatePropagation();
+    const c=$('#aiCard');c.className='card2 ays';$('#aiCardTitle').textContent='The Scottish play!';
+    const b=$('#aiCardBody');b.innerHTML='<p class="rule" style="color:var(--red)">You said it inside the theatre.</p>'+
+      '<p>Tradition says: step outside, turn around three times, spit over your left shoulder, say something rude, then knock and ask to be let back in.</p>'+
+      '<p class="ailine">Why: one legend says the witches\' chant in the play is a real spell, and the play has a long list of onstage accidents. Nobody has proven a curse. The cue was held, not sent.</p>'+
+      '<div class="crow"><button type="button" class="cgo" id="mbDone">Ritual done · let me in</button><button type="button" class="cno" id="mbOurs">It\'s our show · send it</button></div>';
+    c.hidden=false;desk().log('WATCH','Someone said the Scottish play · cue held');
+    $('#mbDone').onclick=()=>{c.hidden=true;$(input).value='';desk().log('DIR','Ritual done · back in the theatre');desk().toast('Floor','Knock knock. You may come back in. Break a leg!');};
+    $('#mbOurs').onclick=()=>{c.hidden=true;f.dataset.ourShow='1';desk().log('DIR','Scottish play is tonight\'s show · cue released');f.requestSubmit();};
+  },true);}
+scottish('#cueForm','#cueInput'); scottish('#callForm','#callInput');
 })();
