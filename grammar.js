@@ -165,3 +165,5 @@ function editor(add){
 const shSel=$('#show');if(shSel)shSel.addEventListener('change',()=>{KEY='desk.grammar.'+shSel.value;G=load();});
 window.grammar={match,run:t=>run(t,'typed'),list:()=>G};
 })();
+/* Load the desk's sound language (sounds.js): OK, NO, ATTENTION, WARNING */
+(function(){const x=document.createElement('script');x.src='sounds.js';document.body.appendChild(x);})();
