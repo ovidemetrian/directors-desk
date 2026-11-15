@@ -1,6 +1,7 @@
 {
   "name": "Director's Desk",
   "short_name": "Desk",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -9,6 +10,18 @@
   "theme_color": "#13151b",
   "description": "Director's Desk: a broadcast and show desk where the director calls the cue, Claude operates, and HUSH stays human. Pre-show plan, room fleet, Green Room. Concept by Ovi, built with Claude.",
   "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icon.svg",
       "sizes": "any",

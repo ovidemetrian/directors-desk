@@ -64,3 +64,6 @@ if(row){const b=document.createElement('button');b.type='button';b.id='tSound';b
 
 window.deskSounds={play,kinds:Object.keys(VOICE),voice:VOICE,last:()=>lastKind};
 })();
+/* PWA housekeeping: iPhones ignore SVG home-screen icons, so point the apple-touch-icon at the PNG.
+   (The permanent fix is the same one-line change in index.html.) */
+(function(){const l=document.querySelector('link[rel="apple-touch-icon"]');if(l)l.setAttribute('href','icon-192.png');})();
