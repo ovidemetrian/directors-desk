@@ -133,3 +133,5 @@ setInterval(()=>{const bo=(($('#lxNow')||{}).textContent||'')==='Blackout';
 /* For the rest of the desk: a random "break a leg" in one of four theatre languages */
 window.theatre={on,leg:()=>pick(LEGS),note:()=>note(true)};
 })();
+/* Load the Show Grammar module (grammar.js): exact commands only, no guessing */
+(function(){const x=document.createElement('script');x.src='grammar.js';document.body.appendChild(x);})();

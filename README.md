@@ -9,7 +9,8 @@ A tablet broadcast desk for live and hybrid shows: sound, cameras, lights and st
 ## What it does today
 
 - **Run the show.** A 60-second demo plays a short scripted show: Claude moves sound, cameras and lights, WATCH flags a mistake, a human hits HUSH. Then the desk goes back exactly as it was. It never runs inside a live crew show.
-- **Cue by voice or text.** "Q&A, open audience mic two." Claude makes the change, then reads the room back so you know it happened.
+- **Cue Claude in plain words.** "Q&A, open audience mic two." Claude makes the change, then reads the room back so you know it happened.
+- **Show Grammar: exact commands, no guessing.** Voice engines mishear accents and slips of the tongue, so at showtime the desk does not interpret. It keeps a closed list of commands built from the gear in the show (scenes, mics, cameras, light cues, cue lights, stream), and a command runs only when the words match an entry exactly. The crew adds their own words in the GRAMMAR editor (an accent, a nickname, another language) and exports the list with the show. Typed and matched runs at once; spoken (hold the 🎙) and matched shows what it heard and waits for GO. No match means nothing changes, with the closest commands offered as buttons. HUSH and Blackout are never in the grammar: hands only.
 - **HUSH is human only.** One tap cuts every mic. Releasing it takes a deliberate hold. Claude cannot touch it.
 - **Roles.** Director, A1 Audio, Camera, Stream, Lighting, Floor. Each person owns their part; the director owns everything.
 - **Crew on the same show.** Call sheet, check-in, cue lights (Standby, Go, Hold, Clear) and a shared show log.
