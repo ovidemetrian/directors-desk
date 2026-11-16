@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#13151b"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon.svg"><title>Director's Desk</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#13151b"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon.svg"><title>Director's Desk</title><meta name="description" content="Director's Desk: a tablet broadcast desk for live and hybrid shows. The director calls the cue, Claude operates sound, cameras, lights and stream, and HUSH stays human. Concept and UX by Ovi Demetrian, built with Claude."><meta property="og:title" content="Director's Desk: the director calls the cue, Claude operates"><meta property="og:description" content="A tablet broadcast desk for live and hybrid shows, designed by someone who has run the switcher. Concept and UX by Ovi Demetrian, built with Claude."><meta property="og:type" content="website"><link rel="alternate" type="text/plain" href="llms.txt" title="AI briefing">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
@@ -857,6 +857,49 @@ body[data-screen="rooms"] #app #rooms{overflow:visible}
 }
 </style>
 
+<style id="v22-fixes">
+/* v22 taste-test fixes: HUSH and the right-hand controls always on screen */
+@media (min-width:1100px) and (min-height:620px){
+  #app .bar>.brand{flex:0 1 auto;min-width:230px}
+  #app .bar>.brand h1{white-space:nowrap}
+  #app .bar>.tallies{flex:1 1 0;min-width:64px;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent)}
+  #app .bar>.tallies::-webkit-scrollbar{display:none}
+  #app .bar>.ays,#app .bar>.hush{flex:0 0 auto}
+}
+/* tablet landscape: the crew row keeps its labels apart */
+@media (min-width:1100px) and (max-width:1320px) and (min-height:620px){
+  #app>.crew>.lbl,#app>.crew .people,#app>.crew #owns{display:none}
+  #app>.crew .rolepick{flex:0 1 auto;min-width:0}
+  #app>.crew .rolepick select{max-width:190px}
+  #app>.crew .sheetbtn{margin-left:auto}
+}
+/* crew row with the show-style button: nothing overlaps */
+@media (min-width:1100px) and (min-height:620px){
+  #app>.crew #owns{display:none}
+  #app>.crew .rolepick{flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:8px}
+  #app>.crew .rolepick select{max-width:210px;min-width:0}
+  #app>.crew .stylebtn{margin-left:auto}
+  #app>.crew .sheetbtn{margin-left:0}
+}
+@media (min-width:1100px) and (max-width:1560px) and (min-height:620px){
+  #app>.crew>.lbl,#app>.crew .people{display:none}
+}
+/* words fit their buttons instead of being cut off */
+#app #scenes .sel,#app .lxlook{font-size:clamp(11px,.95vw,17px);letter-spacing:0;text-overflow:clip;padding-inline:4px}
+#app .bo{font-size:clamp(12px,1vw,18px);letter-spacing:.02em}
+#app .lxk{min-height:44px}
+@media (min-width:1000px) and (max-width:1320px){#app .lxlook .q{display:none}#app .lxlook .t{text-overflow:clip;font-size:.9em;letter-spacing:-.01em}#app #scenes .sel{letter-spacing:-.01em}#app .bo small{display:none}}
+/* Green Room card: arrives from the top, never over the faders */
+.grn{left:50%!important;bottom:auto!important;top:calc(10px + env(safe-area-inset-top,0px));transform:translate(-50%,-160%)!important;width:min(92vw,400px)}
+.grn.in{transform:translate(-50%,0)!important}
+</style>
+<noscript><section style="max-width:640px;margin:24px auto;padding:0 16px;font:16px/1.5 system-ui,sans-serif">
+<h1>Director's Desk</h1>
+<p><strong>The director calls the cue. Claude operates. HUSH stays human.</strong></p>
+<p>A tablet broadcast desk for live and hybrid shows: sound, cameras, lights and stream, run by Claude while a human directs. It includes a 60-second demo show, plain-language cues, an exact-match command grammar for showtime, a human-only HUSH button, crew roles from a call sheet, and a Rooms view for a fleet of meeting rooms where Claude finds the fault and a human approves the fix. All equipment is simulated.</p>
+<p>Concept and UX by <a href="https://ovidemetrian.github.io/portfolio/">Ovi Demetrian</a>, a hardware-aware interface designer with 20+ years of AV, smart-home and live-production systems. Built with Claude. Installable as a phone or tablet app (PWA). This app needs JavaScript to run.</p>
+<p><a href="llms.txt">AI briefing</a> · <a href="https://github.com/ovidemetrian/directors-desk">Source and README</a></p>
+</section></noscript>
 <div class="wrap" id="app">
   <header class="bar">
     <div class="brand">
@@ -1045,6 +1088,7 @@ body[data-screen="rooms"] #app #rooms{overflow:visible}
 
 <div class="demobar" id="demoBar" hidden role="status" aria-live="polite"><span class="dstep" id="demoStep"></span><span class="dtxt" id="demoTxt"></span><button type="button" class="dbtn" id="demoStopBtn" hidden>Stop</button><button type="button" class="dbtn" id="demoClose" hidden>Close</button></div>
 <div class="introcard" id="introCard" hidden role="dialog" aria-modal="true" aria-labelledby="introTitle"><div class="intro-in"><p class="ikicker">Director's Desk</p><h2 id="introTitle">Human directs.<br><span>Claude operates.</span></h2><p>A broadcast desk where you call the cue and Claude runs sound, cameras and lights. HUSH and Blackout stay human only.</p><div class="irow"><button type="button" class="iplay" id="introPlay">▶ Watch the 60-second show</button><button type="button" class="iskip" id="introSkip">I'll explore</button></div><p class="inote">A working simulation. No real equipment is connected.</p></div></div>
+<script src="scenario.js"></script>
 <script src="desk.js"></script>
 <script src="rooms.js"></script>
 <script src="badge.js"></script>

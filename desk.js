@@ -28,8 +28,16 @@ const SUBS=[
   {id:'key',name:'Key / fill',addr:'DMX 25–30'},
   {id:'cyc',name:'Cyc / LED',addr:'DMX 31–36'}
 ];
+/* Show style (scenario.js): genre names, light looks and mic names. Keys never change, so grammar and Claude still work. */
+const SCN=window.DESK_SCN||null;
+if(SCN){
+  if(SCN.scenes)for(const k of Object.keys(SCN.scenes)){if(PRESETS[k])PRESETS[k].label=SCN.scenes[k];if(LX[k])LX[k].label=SCN.scenes[k];}
+  if(SCN.lx)for(const k of Object.keys(SCN.lx)){if(LX[k]){LX[k].lv=Object.assign({},SCN.lx[k].lv);LX[k].fade=SCN.lx[k].fade;}}
+  if(SCN.ch)CH.forEach((c,i)=>{if(SCN.ch[i]){c.name=SCN.ch[i][0];c.sub=SCN.ch[i][1];}});
+}
 const ROLE_COLORS={'Director':'var(--red)','A1 Audio':'var(--ok)','Camera':'var(--yellow)','Stream':'var(--blue)','Lighting':'#c78bff','Floor':'var(--fg)'};
 const SHOWS={'hall-a':'Hall A · 200 seats · hybrid on Google Meet','boardroom':'Boardroom · 16 seats · Meet room','studio':'Studio · podcast set · streamed'};
+if(SCN&&SCN.title)SHOWS['hall-a']=SCN.title;
 /* Who owns what. Director owns everything; HUSH belongs to every human. */
 const OWN={audio:['Director','A1 Audio'],camera:['Director','Camera'],stream:['Director','Stream'],lights:['Director','Lighting'],scene:['Director']};
 const OWN_LABEL={audio:'audio',camera:'camera',stream:'the stream',lights:'lighting',scene:'scenes'};
