@@ -1,0 +1,23 @@
+# Director's Desk
+
+> A tablet broadcast desk for live and hybrid shows. The director calls the cue, Claude operates sound, cameras, lights and stream, and the HUSH button stays human-only. Concept and UX by Ovi Demetrian, built with Claude. Installable PWA; all equipment is simulated.
+
+## What it does
+- Run the show: a 60-second scripted demo where Claude moves sound, cameras and lights, a watcher flags a mistake, and a human hits HUSH.
+- Plain-language cues: "Q&A, open audience mic two." Claude makes the change and reads the room back.
+- Show Grammar: at showtime, commands run only on an exact match from a closed list built from the show's gear; the crew adds their own words. No match, no change.
+- HUSH: one tap cuts all mics and remote audio; human only, never in the grammar.
+- Crew roles from a call sheet (director, A1, camera, stream engineer, lighting, floor manager).
+- Rooms: a fleet of meeting rooms where Claude finds the fault and a human approves the fix.
+
+## Why it matters
+Designed by someone who has run video switchers, live audio mixing, PTZ cameras and streaming (RTMP, SRT, HLS). The interface reflects how a real crew works under pressure.
+
+## Designer
+Ovi Demetrian, hardware-aware interface designer, Phoenix, Arizona. 20+ years of AV, smart-home and live-production systems; mobile UX/UI for music, home control and AI.
+
+## Links
+- Live app: https://ovidemetrian.github.io/directors-desk/
+- Source and README: https://github.com/ovidemetrian/directors-desk
+- Portfolio: https://ovidemetrian.github.io/portfolio/
+- Contact: ovidemetrian@gmail.com
