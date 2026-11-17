@@ -92,6 +92,7 @@ $('#rckGo').onclick=()=>{
   const m=RadioLink.send({t:'ready',ch,label,items,fromRole:role()});
   rk={id:m.id,label,items,ok:{}};paintReady();
 };
+window.DeskReady={lastGo:null,get:()=>rk?{label:rk.label,all:rk.items.every(i=>rk.ok[i]&&rk.ok[i].ok),pending:rk.items.filter(i=>!(rk.ok[i]&&rk.ok[i].ok))}:null};
 function paintReady(){
   const el=$('#rckState');if(!rk){el.hidden=true;return;}el.hidden=false;
   const all=rk.items.every(i=>rk.ok[i]&&rk.ok[i].ok);
@@ -99,7 +100,7 @@ function paintReady(){
   rk.items.forEach(i=>{const s=rk.ok[i];const d=document.createElement('span');d.className='rit'+(s&&s.ok?' ok':'');
     d.textContent=i+(s&&s.ok?' ✓':' …');const sm=document.createElement('small');sm.textContent=s?(s.ok?'ready · ':'not ready · ')+s.who:'waiting';d.append(sm);el.querySelector('.rits').append(d);});
   const g=el.querySelector('.rgo');g.classList.toggle('live',all);g.textContent=all?'GO · '+rk.label:'Waiting · '+rk.items.filter(i=>!(rk.ok[i]&&rk.ok[i].ok)).join(', ');
-  g.onclick=()=>{if(!all)return;send('GO · '+rk.label,'Go');RadioLink.send({t:'readyclear',ref:rk.id});feed('good','GO called · '+rk.label,'all items ready');rk=null;paintReady();};
+  g.onclick=()=>{if(!all)return;window.DeskReady.lastGo=rk.label;send('GO · '+rk.label,'Go');RadioLink.send({t:'readyclear',ref:rk.id});feed('good','GO called · '+rk.label,'all items ready');rk=null;paintReady();};
 }
 function paintLast(){const el=$('#rdoLast');if(!last){el.hidden=true;return;}el.hidden=false;
   el.innerHTML='<small></small><b></b><div class="cp"></div>';el.querySelector('small').textContent='Last sent · '+last.ch;

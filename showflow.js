@@ -87,6 +87,9 @@ function setMode(m){F.mode=m;save();send({t:'mode',mode:m});paintPill();}
 function paintPill(){const L={rehearsal:'REHEARSAL · NOT LIVE',ready:'READY TO GO',live:'LIVE',end:'SHOW COMPLETE'};pill.hidden=!L[F.mode];pill.className='modepill '+F.mode;pill.textContent=L[F.mode]||'';
   fb.innerHTML='Show flow <small>'+(F.step+1)+'/7 · '+STEPS[F.step]+'</small>';}
 const doneOK=k=>!!F.done[k];
+function crewReady(){const R=window.DeskReady;if(!R)return {ok:false,txt:'Radio not loaded'};const r=R.get();
+  if(r)return r.all?{ok:true,txt:'All confirmed ✓'}:{ok:false,txt:'Waiting: '+r.pending.join(', ')};
+  return R.lastGo==='Show day'?{ok:true,txt:'Confirmed, GO called ✓'}:{ok:false,txt:'Not sent yet'};}
 
 /* ---------- 1 Plan: the rundown ---------- */
 function parseWords(txt){
@@ -180,11 +183,12 @@ function rehearsal(b){
 
 /* ---------- 5 Check: every connection, every role ---------- */
 function check(b){
-  const ps=$('#psBtn');const txt=ps?ps.textContent.replace(/\s+/g,' '):'';const m=txt.match(/tank\s*(\d+)\/(\d+)/);const full=/PLAN ✓/.test(txt)||(m&&+m[1]===+m[2]&&+m[2]>0);
+  const ps=$('#psBtn');const txt=ps?ps.textContent.replace(/\s+/g,' '):'';const m=txt.match(/tank\s*(\d+)\/(\d+)/);const full=/PLAN ✓/.test(txt)||(m&&+m[1]===+m[2]&&+m[2]>0);const cr=crewReady();if(F.done.check&&!(full&&cr.ok)){F.done.check=false;save();}
   b.innerHTML='<p class="fl-note">Show day: the pre-show checklist fills the tank (every link in the chain), and a ready check goes to every crew phone.</p>'+
    '<div class="fl-grid"><div class="fl-card"><h3>The tank</h3><div class="big" style="color:'+(full?'var(--ok)':'var(--yellow)')+'">'+(full?'Full ✓':(m?m[1]+' of '+m[2]:'Not checked'))+'</div><button class="fl-act" id="ckOpen" type="button">Open the checklist</button></div>'+
-   '<div class="fl-card"><h3>Every role</h3><p class="fl-note">Sends a ready check to all crew: My station, My cues. Watch it go green in the Radio panel.</p><button class="fl-act blue" id="ckReady" type="button">Ready check: all crew</button></div></div>'+
-   '<button class="fl-act'+(F.done.check?'':' pri')+'" id="ckOk" type="button"'+(full||F.done.check?'':' disabled')+'>'+(F.done.check?'Checked ✓':'Every connection checked')+'</button>';
+   '<div class="fl-card"><h3>Every role</h3><div class="big" id="ckCrew" style="font-size:24px;color:'+(cr.ok?'var(--ok)':'var(--yellow)')+'"></div><p class="fl-note">Sends a ready check to all crew: My station, My cues. Every item must be confirmed from a phone.</p><button class="fl-act blue" id="ckReady" type="button">Ready check: all crew</button></div></div>'+
+   '<button class="fl-act'+(F.done.check?'':' pri')+'" id="ckOk" type="button"'+((full&&cr.ok)||F.done.check?'':' disabled')+'>'+(F.done.check?'Checked ✓':full&&cr.ok?'Every connection checked':'Waiting for '+[full?'':'the tank',cr.ok?'':'the crew'].filter(Boolean).join(' and '))+'</button>';
+  b.querySelector('#ckCrew').textContent=cr.txt;
   b.querySelector('#ckOpen').onclick=()=>{ov.hidden=true;if(ps)ps.click();};
   b.querySelector('#ckReady').onclick=()=>{const L=$('#rckLbl'),I=$('#rckItems'),G=$('#rckGo');if(L&&I&&G){L.value='Show day';I.value='My station, My cues';G.click();}ov.hidden=true;const rb=$('#radioBtn');if(rb&&!document.querySelector('.rdo.open'))rb.click();};
   b.querySelector('#ckOk').onclick=()=>{F.done.check=!F.done.check;save();paint();};
@@ -192,7 +196,7 @@ function check(b){
 
 /* ---------- 6 Ready: the same message on every screen ---------- */
 function ready(b){
-  const need=['plan','meeting','crew','rehearsal','check'];const missing=need.filter(k=>!doneOK(k));
+  const need=['plan','meeting','crew','rehearsal','check'];const missing=need.filter(k=>!doneOK(k));const cr=crewReady();if(!cr.ok&&!missing.includes('check'))missing.push('crew ready check ('+cr.txt+')');
   b.innerHTML='<p class="fl-note">READY TO GO appears on the desk and on every phone at the same moment, and only when everything before it is true.</p>'+
    '<ul class="fl-list">'+need.map(k=>'<li style="color:'+(doneOK(k)?'var(--ok)':'var(--dim)')+'">'+(doneOK(k)?'✓ ':'○ ')+k[0].toUpperCase()+k.slice(1)+'</li>').join('')+'</ul>'+
    '<button class="ready-big" id="rdGo" type="button"'+(missing.length?' disabled':'')+'>'+(F.mode==='ready'?'READY TO GO ✓':missing.length?'Still to do: '+missing.join(', '):'READY TO GO')+'</button>';
@@ -232,6 +236,7 @@ function paint(){
 }
 if(window.RadioLink)RadioLink.on((m,isMe)=>{
   if(isMe)return;
+  if((m.t==='readyitem'||m.t==='readyclear')&&!ov.hidden&&(F.step===4||F.step===5))setTimeout(paint,50);
   if(m.t==='join'){const j=(m.who||'Crew')+' · '+(m.role||'')+(m.loc?' · '+m.loc:'');if(!F.joined.includes(j))F.joined.push(j);save();if(!ov.hidden&&F.step===2)paint();}
   if(F.mode==='rehearsal'){let f=null;
     if(m.t==='reply'&&m.kind!=='Done')f=m.kind+' · '+(m.who||'')+' ('+(m.role||'')+')'+(m.about?' · re: '+m.about:'');
