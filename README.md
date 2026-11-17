@@ -46,3 +46,21 @@ At that size no director can watch everything. So the desk has to change from sh
 ---
 
 *Concept by Ovi, built with Claude. A working simulation today; real rooms next.*
+
+## Crew Radio (phones) · Show styles
+
+- **Crew Radio** (`radio.html`): the silent walkie-talkie. The director sends a message to a channel (All crew, Audio, Stage, Security, Front of house); phones buzz instead of squawking, the crew taps **COPY**, and the desk shows who copied. One-tap replies (Done, Can't, Need help) and reports tagged with the sender's place (Can't hear, Feedback, Picture frozen…). Crew phones can only **request** HUSH; the director's phone holds the real one, hold 1 second. The full desk needs a 10-inch tablet; phones are offered the Radio.
+- **Ready check**: before a handoff (say, bringing in a remote site), the director starts a ready check with the items that matter (Picture, Audio, Stream). The operator's phone confirms each one; the desk shows them going green one by one, and GO lights up only when all are ready.
+- **Role playbooks and the Crew board**: every show style comes with a library of crew tasks, each with who (role), when (Pre-show, Walk-in, Show, Q&A, Break, Strike) and why. Each phone shows only its role's slice, sorted by what matters now; the crew ticks Done or Can't. The director sends any task with one tap from the Playbook, and the Crew board shows every role's progress for the current phase. Changing the scene moves the phase on every phone. Libraries are written with Claude and meant to be reviewed by a stage manager.
+- **Show styles**: Set the stage by room size (Boardroom 16 to Arena 2,000) and character (Business, Rock, Jazz, Theatre). Scene names, light looks, mic names and the accent colour change; the commands underneath stay the same, so Show Grammar and Claude keep working.
+- Without a shared show connection, the Radio talks to Desk windows on the same device; on a shared Claude show it rides the room.
+
+## Show flow (seven steps)
+The **SHOW FLOW** button walks the whole day in order:
+1. **Plan**: the rundown. The event on the left (time, moment, trigger: on the clock or called), the technical side on the right (sound, light, camera, crew, scene). Type the artist's words ("1:30 the band comes in, 4:00 the solo…") and the desk drafts the rows.
+2. **Meeting**: row by row, each department hears its part, the row gets marked Agreed, or sent to every phone.
+3. **Crew**: phones join Crew Radio; each role gets its playbook.
+4. **Rehearsal**: REHEARSAL on every screen. Next moment records real time against plan ("Use real" keeps the new timing). Every Can't, Need help, report or note lands in the fix list.
+5. **Check**: the pre-show tank plus a ready check to all crew.
+6. **Ready**: READY TO GO on the desk and every phone, only when steps 1–5 are done.
+7. **Live**: ARE YOU SURE?, then Go live. Standby warns the phones; GO fires the next row: its scene moves the room and every phone gets the call. After the last row, END OF SHOW puts SHOW COMPLETE on every phone and switches the crew to strike tasks; New show starts again with the rundown kept.
