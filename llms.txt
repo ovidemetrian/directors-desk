@@ -1,14 +1,22 @@
 # Director's Desk
 
-> A tablet broadcast desk for live and hybrid shows. The director calls the cue, Claude operates sound, cameras, lights and stream, and the HUSH button stays human-only. Concept and UX by Ovi Demetrian, built with Claude. Installable PWA; all equipment is simulated.
+> A tablet broadcast desk for live and hybrid shows, with the whole crew on their phones. The director calls the cue, Claude operates sound, cameras, lights and stream, and the HUSH button stays human-only. Concept and UX by Ovi Demetrian, built with Claude. One installable PWA: the full desk on a tablet or PC, Crew Radio on a phone. All equipment is simulated.
 
 ## What it does
+- Show flow, seven steps in order: Plan (the rundown: the artist's minutes on the left, sound, light, camera and crew on the right, drafted from the artist's own words) → Meeting (row by row, every department agrees) → Crew (phones join, playbooks go out) → Rehearsal (REHEARSAL on every screen, real timings against the plan, every "Can't" into a fix list) → Check (pre-show checklist tank + ready check to every role) → READY TO GO on every screen at once → Live (ARE YOU SURE, then Standby and GO row by row, then END OF SHOW and strike tasks).
+- Crew Radio (radio.html): the phone replaces the walkie-talkie. Silent calls with a buzz; crew answer COPY, Done, Can't, Need help, and report problems (Mic dead, Feedback, Picture frozen) from where they stand. Channels by role; only the director's phone can engage HUSH, with a hold.
+- Playbooks: 37 to 67 tasks per show for 10 roles, by phase (pre-show, doors, show, Q&A, break, strike), each with the reason it matters; a Crew board shows who is done.
+- Show styles: five room sizes (boardroom to arena) and four characters (business, rock, jazz, theatre) change scenes, lights and labels.
 - Run the show: a 60-second scripted demo where Claude moves sound, cameras and lights, a watcher flags a mistake, and a human hits HUSH.
-- Plain-language cues: "Q&A, open audience mic two." Claude makes the change and reads the room back.
-- Show Grammar: at showtime, commands run only on an exact match from a closed list built from the show's gear; the crew adds their own words. No match, no change.
+- Show Grammar: at showtime, commands run only on an exact match from a closed list built from the show's gear. No match, no change.
 - HUSH: one tap cuts all mics and remote audio; human only, never in the grammar.
-- Crew roles from a call sheet (director, A1, camera, stream engineer, lighting, floor manager).
 - Rooms: a fleet of meeting rooms where Claude finds the fault and a human approves the fix.
+
+## How it is built and checked
+Every version is tested as a show: a desk and crew phones driven end to end by automated scripts (20 of 20 checks pass in the full show-day run), then checked on screenshots at tablet, laptop and phone sizes.
+
+## What comes next
+A show box on an Intel NUC: it serves the app with no internet, relays every call between desk and phones (crew join by QR code on the crew's own router or the venue's Wi-Fi), and bridges to a Q-SYS Core over QRC, with HUSH also built into the Core. Remote crew join through a cloud relay only when there is internet, and never control the room.
 
 ## Why it matters
 Designed by someone who has run video switchers, live audio mixing, PTZ cameras and streaming (RTMP, SRT, HLS). The interface reflects how a real crew works under pressure.
@@ -18,6 +26,7 @@ Ovi Demetrian, hardware-aware interface designer, Phoenix, Arizona. 20+ years of
 
 ## Links
 - Live app: https://ovidemetrian.github.io/directors-desk/
+- Crew Radio (phone): https://ovidemetrian.github.io/directors-desk/radio.html
 - Source and README: https://github.com/ovidemetrian/directors-desk
 - Portfolio: https://ovidemetrian.github.io/portfolio/
 - Contact: ovidemetrian@gmail.com
