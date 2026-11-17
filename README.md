@@ -6,6 +6,11 @@
 
 A tablet broadcast desk for live and hybrid shows: sound, cameras, lights and stream, run by Claude while a human directs. Installable as an app (PWA). Concept by Ovi, built with Claude.
 
+**Three parts, one app:**
+- **The desk** (`index.html`, tablet 10"+ or PC): the director's screen.
+- **[Crew Radio](https://ovidemetrian.github.io/directors-desk/radio.html)** (`radio.html`, phone): the silent walkie-talkie for every crew member.
+- **Show flow**: seven steps from the artist's rundown to READY TO GO on every screen, then live. [Details below](#show-flow-seven-steps).
+
 ## What it does today
 
 - **Run the show.** A 60-second demo plays a short scripted show: Claude moves sound, cameras and lights, WATCH flags a mistake, a human hits HUSH. Then the desk goes back exactly as it was. It never runs inside a live crew show.
