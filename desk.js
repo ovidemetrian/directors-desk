@@ -413,6 +413,8 @@ function render(){
 /* ---------- HUSH: any human on the crew; Claude has no tool ---------- */
 const hb=$('#hush'), hrb=$('#hushRelease'); let hold=$('#hushHold'); let holdT=null, holdStart=0, raf=null;
 function engage(){write({hush:true},'DIR','HUSH engaged: all mics and remote audio cut');}
+/* Crew Radio: a human on the director's phone may engage HUSH; Claude still has no path to it */
+window.DESK_HUSH={engage:(who)=>{if(S.hush)return false;write({hush:true},'DIR','HUSH engaged from Crew Radio'+(who?' by '+who:'')+': all mics and remote audio cut');return true;},isOn:()=>!!S.hush};
 function holdTick(){const p=Math.min(1,(performance.now()-holdStart)/800);hold.style.width=(p*100)+'%';if(p>=1)endHold(true);else raf=requestAnimationFrame(holdTick);}
 function endHold(done){cancelAnimationFrame(raf);document.querySelectorAll('.hold').forEach(h=>h.style.width='0');holdT=null;if(done)write({hush:false},'DIR','HUSH released');}
 function startHold(){holdStart=performance.now();holdT=1;raf=requestAnimationFrame(holdTick);}
@@ -537,6 +539,7 @@ setInterval(()=>{$('#clock').textContent=new Date().toLocaleTimeString([], {hour
 /* ---------- Crew calls ---------- */
 async function sendCall(text){
   text=text.trim().slice(0,140); if(!text)return;
+  if(window.RadioLink)RadioLink.send({t:'msg',ch:'All crew',text,fromRole:myRole}); /* typed calls reach Crew Radio phones too */
   if(!room){addLog('CALL',text,myRole,'you');toast(myRole,text);return;}
   try{await room.emit('call',{text,role:myRole,show:SHOW});}catch(e){addLog('FAIL','Call not sent: '+(e&&e.code==='not_permitted'?'you need edit access':'connection'),myRole);}
 }
