@@ -10,6 +10,7 @@
     subs.forEach(f=>{try{f(m,isMe);}catch(e){}});
   }
   if(bc)bc.onmessage=ev=>deliver(ev.data,false);
+  if(window.ShowBox)ShowBox.onRadio((m,isMe)=>deliver(m,isMe)); // show box: across every device on the show LAN
   (async()=>{
     if(!window.claude)return;
     try{room=await claude.use('room');room.on('radio',m=>deliver(m&&m.data,m&&m.isMe));}catch(e){room=null;}
@@ -20,9 +21,10 @@
       m=Object.assign({id:Math.random().toString(36).slice(2,10)+Date.now().toString(36),at:Date.now(),show:show()},m);
       try{if(bc)bc.postMessage(m);}catch(e){}
       if(room)room.emit('radio',m).catch(()=>{});
+      if(window.ShowBox)ShowBox.radio(m);
       deliver(m,true); return m;
     },
     on(f){subs.push(f);},
-    shared(){return !!room;}
+    shared(){return !!room||!!(window.ShowBox&&ShowBox.live());}
   };
 })();

@@ -71,6 +71,7 @@ function write(patch,src,what){
   const prevW=(src==='DIR'&&!watchMute&&(S.ai||'on')==='watch')?JSON.parse(JSON.stringify(S)):null;
   const change={src,what,by:myId,role:myRole,at:Date.now()};
   merge(S,patch); S.change=change; render();
+  try{if(window.ShowBox&&!demoOn)ShowBox.mirror(patch,change);}catch(_){} // show box → Q-SYS (no-op when not on a box)
   if(prevW){try{watchCheck(prevW,patch);}catch(_){}}
   if(!docRef){addLog(src,what,myRole);bcSend({t:'patch',show:SHOW,patch,change});return Promise.resolve(true);}
   const full=Object.assign({},patch,{change});
