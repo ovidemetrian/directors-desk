@@ -32,6 +32,17 @@ A tablet broadcast desk for live and hybrid shows: sound, cameras, lights and st
 
 It is a working simulation. No real equipment is connected yet. A real Rooms screen would read Logitech Sync and the CollabOS API through a small server that holds the keys; this page never holds them. This installable version uses an offline cue parser; the live-Claude version runs inside Claude.
 
+## Show box: the real show network
+
+The step from simulation to real rooms. **[showbox/](showbox/)** is a small local server for an Intel NUC (or an Android phone with Termux, for testing in the car):
+
+- Serves the Desk and Crew Radio over HTTPS on the show's own network. Crew join by QR code. No internet, no cloud, no AI needed at showtime.
+- Relays every call between the desk and the crew phones, and keeps the show log with one clock.
+- Bridges to a **Q-SYS Core over QRC** (port 1710), reading every change back so a lost command is caught.
+- Two network ports with no routing between them: phones can never reach the Core. The box is the only door.
+
+Status: built and running against a mock Core. Next: test on Q-SYS Designer in Emulate mode, then a real Core. Setup and the full network plan are in **[showbox/README.md](showbox/README.md)**.
+
 ## What comes next
 
 The Director's Desk started as one tablet. Today it runs on one screen or split across several portrait monitors, and the crew shares the same show from any device.
