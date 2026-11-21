@@ -1,0 +1,11 @@
+# Director's Desk · SHOW BOX addresses (Ubuntu netplan on the NUC). Put in /etc/netplan/, then: sudo netplan apply
+# No gateway and no DNS on purpose: the box never looks for the internet.
+network:
+  version: 2
+  ethernets:
+    enp1s0:                         # show LAN: cable to the travel router's LAN port
+      addresses: [192.168.50.10/24]
+      dhcp4: false
+    enp2s0:                         # Core LAN: cable (or USB-C Ethernet) straight to the Core's control port
+      addresses: [192.168.60.10/24]
+      dhcp4: false

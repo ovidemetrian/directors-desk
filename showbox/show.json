@@ -1,0 +1,22 @@
+{
+  "show": "hall-a",
+  "title": "Hall A · 200 seats",
+  "ssid": "DD-Show-7F3K",
+  "address": "192.168.50.10",
+  "https": 8443,
+  "http": 8080,
+  "www": "../directors-desk",
+  "qrcUser": "desk",
+  "cores": [
+    { "host": "192.168.60.20" }
+  ],
+  "crew": [
+    { "name": "Ovi", "role": "Director", "device": "desk" },
+    { "name": "Ovi phone", "role": "Director", "device": "radio" },
+    { "name": "Sam", "role": "A1 Audio", "device": "desk" },
+    { "name": "Lee", "role": "Camera" },
+    { "name": "Ana", "role": "Lighting" },
+    { "name": "Max", "role": "Floor" },
+    { "name": "Door team", "role": "Security" }
+  ]
+}

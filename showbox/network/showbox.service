@@ -1,0 +1,21 @@
+# Director's Desk · SHOW BOX as a service: starts with the NUC, restarts if it ever stops.
+# sudo cp showbox.service /etc/systemd/system/ && sudo systemctl enable --now showbox
+[Unit]
+Description=Director's Desk show box
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=show
+WorkingDirectory=/home/show/showbox
+EnvironmentFile=/home/show/showbox/showbox.env
+ExecStart=/usr/bin/node server.js --config show.json
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/home/show/showbox/state /home/show/showbox/logs
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
