@@ -19,6 +19,7 @@ const flag = k => process.argv.includes(k);
 const HERE = __dirname;
 const CFG = JSON.parse(fs.readFileSync(path.resolve(arg('--config', path.join(HERE, 'show.json'))), 'utf8'));
 const WWW = path.resolve(arg('--www', CFG.www || path.join(HERE, '..', 'directors-desk')));
+const APK = path.join(WWW, 'app', 'crew-radio.apk');   // Crew Radio for Android, put here by Epic OS
 const STATE = path.join(HERE, 'state'); const LOGS = path.join(HERE, 'logs'); const CERTS = path.join(HERE, 'certs');
 for (const d of [STATE, LOGS]) fs.mkdirSync(d, { recursive: true, mode: 0o700 });
 const HOST = CFG.address, HTTPS_PORT = CFG.https || 8443, HTTP_PORT = CFG.http || 8080;
@@ -35,7 +36,7 @@ for (const [t, p] of Object.entries(TOKENS)) if (!CFG.crew.find(c => c.name === 
 for (const p of Object.values(TOKENS)) { const c = CFG.crew.find(x => x.name === p.name); p.role = c.role; p.device = c.device || p.device; }
 fs.writeFileSync(TOK_FILE, JSON.stringify(TOKENS, null, 1), { mode: 0o600 });
 const who = req => { const u = new URL(req.url, BASE); const t = req.headers['x-show-token'] || u.searchParams.get('t'); return (t && TOKENS[t]) ? { token: t, ...TOKENS[t] } : null; };
-const joinUrl = t => `${BASE}/box/join?t=${t}`;
+const joinUrl = t => `${BASE}/box/join?t=${t}&fp=${CA_FP.replace(/:/g, '')}`;   // fp: the Crew Radio app pins the box certificate from the code
 
 /* ---------- Show log: one JSON line per event, box clock, on disk first ---------- */
 const LOG_FILE = path.join(LOGS, `${CFG.show}-${new Date().toISOString().slice(0, 10)}.jsonl`);
@@ -152,7 +153,7 @@ location.replace(${JSON.stringify(target)});</script>`);
     return res.end(`<!doctype html><meta name=viewport content="width=device-width"><title>Join sheet · ${esc(CFG.title || CFG.show)}</title>
 <style>body{font:15px system-ui;margin:20px;background:#fff;color:#111}h1{font-size:20px}main{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px}figure{margin:0;border:1px solid #ccc;border-radius:10px;padding:10px;text-align:center;break-inside:avoid}svg{width:100%;height:auto}.step{border-color:#d33}</style>
 <h1>${esc(CFG.title || CFG.show)} · join sheet</h1><p>Wi-Fi <b>${esc(CFG.ssid || 'show network')}</b> first. New device: scan step 1 once, then your own code. Each code is personal: do not share.</p>
-<main><figure class=step>${qrSvg(ca)}<figcaption><b>Step 1 · trust the show box</b><br>once per device</figcaption></figure>${cards}</main>`);
+<main><figure class=step>${qrSvg(ca)}<figcaption><b>Step 1 · trust the show box</b><br>once per device</figcaption></figure>${fs.existsSync(APK) ? `<figure class=step>${qrSvg(`http://${HOST}:${HTTP_PORT}/crew-radio.apk`)}<figcaption><b>Android crew · Crew Radio app</b><br>install once, skip step 1, scan your code in the app</figcaption></figure>` : ''}${cards}</main>`);
   }
   return json(res, 404, { error: 'unknown' });
 }
@@ -168,11 +169,12 @@ function handler(req, res) {
 /* Port 8080 is plain HTTP and only hands out the box's certificate, so a new device can trust the HTTPS side. */
 function caPage(req, res) {
   const u = new URL(req.url, `http://${HOST}`);
+  if (u.pathname === '/crew-radio.apk' && fs.existsSync(APK)) { head(res, 200, 'application/vnd.android.package-archive', { 'Content-Disposition': 'attachment; filename="crew-radio.apk"' }); return fs.createReadStream(APK).pipe(res); }
   if (u.pathname === '/ca.crt') { head(res, 200, 'application/x-x509-ca-cert', { 'Content-Disposition': 'attachment; filename="showbox-ca.crt"' }); return fs.createReadStream(path.join(CERTS, 'ca.crt')).pipe(res); }
   if (u.pathname === '/') { head(res, 200, 'text/html; charset=utf-8'); return res.end(`<!doctype html><meta name=viewport content="width=device-width"><body style="font:18px system-ui;padding:20px;max-width:560px">
 <h1>Trust the show box</h1><ol><li><a href="/ca.crt">Download the show box certificate</a></li>
 <li>Android: Settings → Security → Encryption & credentials → Install a certificate → CA certificate.<br>iPhone/iPad: Settings → Profile Downloaded → Install, then Settings → General → About → Certificate Trust Settings → turn it on.</li>
-<li>Now scan your personal QR code from the join sheet.</li></ol><p><small>Certificate fingerprint: ${esc(CA_FP)}</small></p>`); }
+<li>Now scan your personal QR code from the join sheet.</li></ol>${fs.existsSync(APK) ? '<p>Android crew: <a href="/crew-radio.apk">install the Crew Radio app</a> instead. It trusts the box by itself and stays on the radio with the screen off.</p>' : ''}<p><small>Certificate fingerprint: ${esc(CA_FP)}</small></p>`); }
   res.writeHead(301, { Location: BASE + u.pathname + u.search }); res.end();
 }
 
