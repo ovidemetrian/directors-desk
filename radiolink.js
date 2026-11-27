@@ -30,4 +30,4 @@
 })();
 
 /* Desk only: the story splash plays first (showcase.js checks it is on the desk) */
-if(document.getElementById("introCard")){const s=document.createElement("script");s.src="showcase.js";document.body.appendChild(s);}
+if(document.getElementById("introCard")){try{sessionStorage.removeItem("desk.showcase");}catch(_){} /* the story plays on every open, not only the first */const s=document.createElement("script");s.src="showcase.js";document.body.appendChild(s);}
