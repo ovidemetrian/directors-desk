@@ -59,6 +59,8 @@
   -webkit-mask:radial-gradient(circle,#000 0%,transparent 60%);mask:radial-gradient(circle,#000 0%,transparent 60%);animation:scSpin 200s linear infinite}
 .sc .sp{position:absolute;inset:0;pointer-events:none}
 .sc .sp svg{width:100%;height:100%;display:block}
+.sc::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:rgba(4,6,20,.5)} /* dims the moving background only; the glass sits above it */
+.sc .sc-stage{z-index:2}
 @keyframes scLavaA{to{transform:translate3d(12vmax,8vmax,0)}}
 @keyframes scLavaB{to{transform:translate3d(-10vmax,-7vmax,0)}}
 @keyframes scSpin{to{transform:rotate(360deg)}}
