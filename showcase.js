@@ -46,16 +46,13 @@
   const W=1000,H=1950; /* a long modern phone shape; the same picture on every screen */
   const css=`
 .sc{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(180deg,#000 0%,#02040c 58%,#000 100%);font-family:var(--body);color:#fff;touch-action:pan-y}
-/* Infinite grid: a neon floor rolling toward you forever under a black sky, never arriving.
-   The horizon sits on the keys line, so the text reads on clean black sky. */
+/* Infinite grid: a neon floor rolling toward you forever, mirrored above, meeting at a horizon in the middle of the screen. Never arriving. */
 .sc .tg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block}
 .sc .hz{position:absolute;left:0;right:0;top:80%;height:2px;background:#8fe9ff;box-shadow:0 0 16px 3px rgba(0,190,255,.6),0 0 60px 12px rgba(0,120,255,.22);pointer-events:none}
-.sc .sp{position:absolute;inset:0;pointer-events:none}
-.sc .sp svg{width:100%;height:100%;display:block}
 .sc::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:rgba(0,0,0,.25)} /* dims the moving background only; the glass sits above it */
 .sc .sc-stage{z-index:2}
 .sc .sc-stage{position:relative;width:${W}px;height:${H}px;flex:none;transform-origin:center;border-radius:44px;
-  background:rgba(10,12,28,.32);border:2px solid rgba(255,255,255,.22);box-shadow:0 30px 90px rgba(0,0,0,.35)}
+  background:linear-gradient(180deg,rgba(74,58,18,.86),rgba(52,40,12,.9));border:2px solid rgba(244,179,34,.45);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 30px 90px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,230,160,.18)}
 .sc .sc-pg{position:absolute;inset:0;padding:120px 64px 250px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
 .sc .sc-pg.on{opacity:1;transform:none;pointer-events:auto}
 .sc .sc-pg.sc-out{transform:translateX(-60px)}
@@ -82,7 +79,7 @@
 .sc .sc-sub{font-size:46px;line-height:1.3;color:#f4b322;margin:0}
 .sc .sc-end .sc-sub{font-size:44px;max-width:860px}
 .sc ul{list-style:none;margin:0;padding:0;display:grid;gap:12px;width:100%;text-align:left}
-.sc li{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:22px;padding:15px 24px;border-radius:18px;background:rgba(10,12,28,.28);border:1px solid rgba(255,255,255,.16)}
+.sc li{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:22px;padding:15px 24px;border-radius:18px;background:rgba(10,8,2,.42);border:1px solid rgba(244,179,34,.22)}
 .sc li i{font-style:normal;font-size:54px;text-align:center}
 .sc li b{display:block;font-family:var(--display);font-weight:700;font-size:42px;letter-spacing:.02em;line-height:1.05;margin-bottom:4px}
 .sc li span{display:block;font-size:28px;line-height:1.2;letter-spacing:.02em;color:#f4b322}
@@ -103,9 +100,7 @@
 `;
   const st=document.createElement('style');st.textContent=css;document.head.append(st);
 
-  /* Stars stay still in the black sky (no blinking); only the grid floor moves. All vector. */
-  let spk='';for(let n=0;n<26;n++){const x=(n*137.5)%1000,y=(n*271.3)%600,r=1.5+(n%4)*.9;spk+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r}" fill="#fff" opacity="${(.3+(n%3)*.15).toFixed(2)}"/>`;}
-  const bg=`<canvas class="tg" aria-hidden="true"></canvas><div class="hz"></div><div class="sp"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${spk}</svg></div>`;
+  const bg=`<canvas class="tg" aria-hidden="true"></canvas><div class="hz"></div>`;
 
   const esc=s=>s;
   const pageHTML=(p,i)=>{
@@ -125,22 +120,27 @@
   const $m=s=>sc.querySelector(s);
   const stage=()=>sc.querySelector('.sc-stage');
   function fit(){const s=Math.min(innerWidth*.84/W,innerHeight*.93/H);stage().style.transform='scale('+s+')';
-    /* keep the sparkles out from behind the glass: they read like stray dots on the text */
-    const k=sc.querySelector('.sc-keys').getBoundingClientRect();HZ=Math.round(k.top);const hz=sc.querySelector('.hz');if(hz)hz.style.top=HZ+'px';
-    DPR=Math.min(2,devicePixelRatio||1);cv.width=innerWidth*DPR;cv.height=innerHeight*DPR;
-    const r=stage().getBoundingClientRect(),sp=sc.querySelector('.sp');if(sp)sp.style.clipPath=`path(evenodd,'M0 0H${innerWidth}V${innerHeight}H0Z M${r.left} ${r.top}H${r.right}V${r.bottom}H${r.left}Z')`;}
+    HZ=Math.round(innerHeight/2);const hz=sc.querySelector('.hz');if(hz)hz.style.top=HZ+'px';
+    DPR=Math.min(2,devicePixelRatio||1);cv.width=innerWidth*DPR;cv.height=innerHeight*DPR;}
   addEventListener('resize',fit);
 
   /* The story plays by itself and loops forever: page after page, back to the start. The keys only steer it.
      No skip anywhere: the way into the desk is at the end of the story. */
   let cur=0,playing=true,t0=0,raf=0;
   const cv=sc.querySelector('.tg'),gx=cv.getContext('2d'),still=matchMedia('(prefers-reduced-motion: reduce)').matches;let HZ=0,DPR=1;
-  /* the grid: lines run to one vanishing point on the horizon; 91 px between them at the bottom edge; rows roll in forever */
+  /* the grid: square tiles rolling in forever on the floor, mirrored on the ceiling, meeting at the horizon in the middle of the screen */
   function grid(ms){if(!gx)return;const W=innerWidth,H=innerHeight,cx=W/2,hz=HZ,deep=H-hz;gx.setTransform(DPR,0,0,DPR,0,0);gx.clearRect(0,0,W,H);if(deep<8)return;
-    const ph=still?0:(ms/1400)%1;gx.lineWidth=1.4;
-    for(let n=-40;n<=40;n++){const xb=cx+n*91*(H-hz)/Math.max(60,deep);gx.strokeStyle='rgba(0,200,255,.55)';gx.beginPath();gx.moveTo(cx,hz);gx.lineTo(cx+(xb-cx)*1.6,hz+deep*1.6);gx.stroke();}
-    for(let i=0;i<60;i++){const z=i+1-ph,y=hz+deep*(1.2/z);if(y>H+2)continue;if(y-hz<1)break;const a=Math.min(.75,(y-hz)/deep*1.4);gx.strokeStyle='rgba(0,200,255,'+a.toFixed(3)+')';gx.beginPath();gx.moveTo(0,y);gx.lineTo(W,y);gx.stroke();}
-    const fade=gx.createLinearGradient(0,hz,0,hz+Math.min(deep,90));fade.addColorStop(0,'rgba(0,0,0,.85)');fade.addColorStop(1,'rgba(0,0,0,0)');gx.fillStyle=fade;gx.fillRect(0,hz,W,Math.min(deep,90));}
+    /* true perspective of square tiles: the camera sits one unit above the floor; tiles are 91 px wide at the bottom edge;
+       the ceiling is the same floor mirrored above the horizon, like a reflection */
+    const f=deep,sq=91/deep,ph=still?0:(ms/1500)%1;gx.lineWidth=1.3;
+    const line=(x1,y1,x2,y2,a)=>{gx.strokeStyle='rgba(0,200,255,'+a.toFixed(3)+')';gx.beginPath();gx.moveTo(x1,y1);gx.lineTo(x2,y2);gx.stroke();
+      gx.strokeStyle='rgba(0,200,255,'+(a*.55).toFixed(3)+')';gx.beginPath();gx.moveTo(x1,2*hz-y1);gx.lineTo(x2,2*hz-y2);gx.stroke();};
+    for(let k=-160;k<=160;k++){const X=k*sq;line(cx,hz,cx+f*X/.5,hz+f/.5,.5);}
+    for(let n=0;n<400;n++){const Z=1+(n-ph)*sq;if(Z<=.05)continue;const y=hz+f/Z;if(y>H+2)continue;if(y-hz<.7)break;line(0,y,W,y,Math.min(.7,(y-hz)/deep*1.6));}
+    /* the horizon swallows the far lines: fade both halves into it */
+    const d=Math.min(deep,110),dn=gx.createLinearGradient(0,hz,0,hz+d),up=gx.createLinearGradient(0,hz,0,hz-d);
+    [dn,up].forEach(g=>{g.addColorStop(0,'rgba(0,0,0,.9)');g.addColorStop(1,'rgba(0,0,0,0)');});
+    gx.fillStyle=dn;gx.fillRect(0,hz,W,d);gx.fillStyle=up;gx.fillRect(0,hz-d,W,d);}
 
   const N=PAGES.length,wrap=i=>(i%N+N)%N,DUR=i=>PAGES[i].items?9000:6000;
   function tick(now){
