@@ -77,6 +77,7 @@
 .sc .sc-cover .sc-mark small{letter-spacing:.24em}
 .sc .sc-end h2{font-size:120px;line-height:1.02;margin-top:70px}
 .sc .sc-pg.sc-end .sc-corner{font-size:156px;line-height:.98;margin:0}
+.sc .sc-end .sc-kick{display:none}
 .sc .sc-sub{font-size:46px;line-height:1.3;color:#f4b322;margin:0}
 .sc .sc-end .sc-sub{font-size:44px;max-width:860px}
 .sc ul{list-style:none;margin:0;padding:0;display:grid;gap:12px;width:100%;text-align:left}
