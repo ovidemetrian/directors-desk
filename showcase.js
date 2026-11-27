@@ -1,5 +1,5 @@
 /* Showcase splash: the story of the Desk, shown first on every new session, before the desk itself.
-   A fixed square stage (same picture on phone, tablet and TV), page to page with three push keys.
+   A fixed phone-shaped stage (same picture on phone, tablet and TV), page to page with three push keys.
    Concept & design: Ovi Demetrian. Built with Claude. */
 (function(){
   let seen=false;try{seen=sessionStorage.getItem('desk.showcase')==='1';}catch(_){}
@@ -9,7 +9,7 @@
   const PAGES=[
     {k:'Director\'s Desk',cover:true,
      t:'The whole show<br>on one desk.',
-     s:'Human directs. Claude operates.<br>HUSH stays human.'},
+     s:'HUSH stays human.'},
     {k:'1 · What we built',t:'What we built',items:[
       ['🎛','The Desk','sound, cameras, lights and stream on one tablet'],
       ['🤖','Claude operates','every change read back, so you know it happened'],
@@ -47,76 +47,73 @@
     {k:'Curtain up',end:true,t:'Break a leg.',s:'The tank shows next. Check the checklist first, then GO for a good show.'}
   ];
 
+  const W=1000,H=1600; /* a regular (not extra-long) phone shape; the same picture on every screen */
   const css=`
-.sc{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#05070f;font-family:var(--body);color:#fff;touch-action:pan-y}
-.sc .sc-bg{position:absolute;inset:-20%;pointer-events:none}
-.sc .sc-bg svg{width:100%;height:100%;display:block}
-.sc .lavaA,.sc .lavaB,.sc .rays{will-change:transform}
-.sc .lavaA{animation:scLavaA 40s ease-in-out infinite alternate}
-.sc .lavaB{animation:scLavaB 47s ease-in-out infinite alternate}
-.sc .rays{transform-origin:500px 500px;animation:scSpin 200s linear infinite}
-.sc .spk{opacity:.35;animation:scTw 9s ease-in-out infinite}
-@keyframes scLavaA{to{transform:translate(90px,60px) scale(1.12)}}
-@keyframes scLavaB{to{transform:translate(-80px,-50px) scale(1.1)}}
+.sc{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(90deg,#ff8a1c 0%,#d9480f 28%,#5b2a6e 50%,#1847c8 74%,#03061a 100%);font-family:var(--body);color:#fff;touch-action:pan-y}
+/* Background moves only by sliding and turning whole layers (the graphics chip does that), never by redrawing: no flicker */
+.sc .lv{position:absolute;width:90vmax;height:90vmax;border-radius:50%;pointer-events:none;will-change:transform;backface-visibility:hidden}
+.sc .lvA{left:-30vmax;top:-10vmax;background:radial-gradient(circle,rgba(255,176,46,.9) 0%,rgba(255,90,0,0) 65%);animation:scLavaA 40s ease-in-out infinite alternate}
+.sc .lvB{right:-30vmax;bottom:-20vmax;background:radial-gradient(circle,rgba(47,107,255,.8) 0%,rgba(10,26,107,0) 65%);animation:scLavaB 47s ease-in-out infinite alternate}
+.sc .ry{position:absolute;left:50%;top:50%;width:200vmax;height:200vmax;margin:-100vmax 0 0 -100vmax;pointer-events:none;will-change:transform;backface-visibility:hidden;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.08) 0deg 4deg,rgba(255,255,255,0) 4deg 30deg);
+  -webkit-mask:radial-gradient(circle,#000 0%,transparent 60%);mask:radial-gradient(circle,#000 0%,transparent 60%);animation:scSpin 200s linear infinite}
+.sc .sp{position:absolute;inset:0;pointer-events:none}
+.sc .sp svg{width:100%;height:100%;display:block}
+@keyframes scLavaA{to{transform:translate3d(12vmax,8vmax,0)}}
+@keyframes scLavaB{to{transform:translate3d(-10vmax,-7vmax,0)}}
 @keyframes scSpin{to{transform:rotate(360deg)}}
-@keyframes scTw{0%,100%{opacity:.25}50%{opacity:.6}}
-.sc .sc-stage{position:relative;width:1000px;height:1000px;flex:none;transform-origin:center;border-radius:36px;
-  background:rgba(8,10,22,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:0 40px 120px rgba(0,0,0,.55);background:rgba(8,10,22,.5)}
-.sc .sc-pg{position:absolute;inset:0;padding:56px 70px 170px;display:flex;flex-direction:column;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
+.sc .sc-stage{position:relative;width:${W}px;height:${H}px;flex:none;transform-origin:center;border-radius:44px;
+  background:rgba(10,12,28,.7);border:2px solid rgba(255,255,255,.18);box-shadow:0 40px 120px rgba(0,0,0,.6)}
+.sc .sc-pg{position:absolute;inset:0;padding:60px 70px 270px;display:flex;flex-direction:column;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
 .sc .sc-pg.on{opacity:1;transform:none;pointer-events:auto}
 .sc .sc-pg.sc-out{transform:translateX(-60px)}
-.sc .sc-kick{font-family:var(--display);font-weight:600;font-size:30px;letter-spacing:.18em;text-transform:uppercase;color:#f4b322;margin:0 0 14px}
-.sc h2{font-family:var(--display);font-weight:700;font-size:58px;line-height:1;margin:0 0 20px;letter-spacing:.01em}
-.sc .sc-cover h2{font-size:118px;margin-top:150px}
-.sc .sc-end h2{font-size:130px;margin-top:220px}
-.sc .sc-sub{font-size:36px;line-height:1.3;color:#e9e6f2;margin:0}
-.sc .sc-end .sc-sub{font-size:32px;max-width:760px}
-.sc ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.sc li{display:grid;grid-template-columns:58px 1fr;align-items:center;gap:16px;padding:7px 18px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)}
-.sc li i{font-style:normal;font-size:38px;text-align:center}
-.sc li b{display:block;font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.02em;line-height:1.05}
-.sc li span{display:block;font-size:21px;line-height:1.2;color:#cfd3e6}
-.sc .sc-credit{position:absolute;left:74px;bottom:190px;font-size:24px;color:#cfd3e6;margin:0}
-.sc .sc-dots{position:absolute;left:0;right:0;bottom:138px;display:flex;justify-content:center;gap:14px}
-.sc .sc-dots b{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.25)}
+.sc .sc-mark{margin:0 0 6px;font-family:var(--display);font-weight:700;font-size:84px;line-height:1;letter-spacing:-.01em;
+  background:linear-gradient(90deg,#f4b322,#ffffff 55%,#8fb3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sc .sc-mark small{display:block;margin-top:10px;font-family:var(--body);font-weight:500;font-size:26px;letter-spacing:.32em;text-transform:uppercase;color:#cfd3e6;-webkit-text-fill-color:#cfd3e6}
+.sc .sc-kick{font-family:var(--display);font-weight:600;font-size:32px;letter-spacing:.16em;text-transform:uppercase;color:#f4b322;margin:26px 0 8px}
+.sc h2{font-family:var(--display);font-weight:700;font-size:70px;line-height:1;margin:0 0 28px;letter-spacing:.01em}
+.sc .sc-cover .sc-mark{font-size:150px;margin-top:220px}
+.sc .sc-cover h2{font-size:84px;margin-top:70px;line-height:1.05}
+.sc .sc-end h2{font-size:150px;margin-top:300px}
+.sc .sc-sub{font-size:40px;line-height:1.3;color:#e9e6f2;margin:0}
+.sc .sc-end .sc-sub{font-size:38px;max-width:800px}
+.sc ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.sc li{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:20px;padding:12px 22px;border-radius:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.sc li i{font-style:normal;font-size:46px;text-align:center}
+.sc li b{display:block;font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:.02em;line-height:1.05}
+.sc li span{display:block;font-size:26px;line-height:1.25;color:#d6daee}
+.sc .sc-credit{position:absolute;left:70px;bottom:300px;font-size:28px;color:#cfd3e6;margin:0}
+.sc .sc-dots{position:absolute;left:0;right:0;bottom:222px;display:flex;justify-content:center;gap:16px}
+.sc .sc-dots b{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.28)}
 .sc .sc-dots b.on{background:#f4b322;box-shadow:0 0 14px #f4b322}
-.sc .sc-keys{position:absolute;left:60px;right:60px;bottom:36px;display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:22px}
-.sc .sc-key{height:86px;border:0;border-radius:20px;color:#fff;font-family:var(--display);font-weight:700;font-size:29px;letter-spacing:.05em;text-transform:uppercase;line-height:1.05;padding:0 12px;cursor:pointer;
-  box-shadow:0 9px 0 rgba(0,0,0,.55),inset 0 2px 0 rgba(255,255,255,.28),0 14px 26px rgba(0,0,0,.45);transform:translateY(0);transition:transform .08s,box-shadow .08s,filter .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.sc .sc-key:active,.sc .sc-key.sc-down{transform:translateY(8px);box-shadow:0 1px 0 rgba(0,0,0,.55),inset 0 2px 0 rgba(255,255,255,.2),0 4px 10px rgba(0,0,0,.4)}
-.sc .sc-key.red{background:#74091c}
-.sc .sc-key.org{background:linear-gradient(180deg,#f4b322,#d97a06);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.45)}
-.sc .sc-key.blu{background:#0d2a78}
-.sc .sc-key.sc-glow{filter:brightness(1.12);box-shadow:0 9px 0 rgba(0,0,0,.55),inset 0 2px 0 rgba(255,255,255,.28),0 0 34px rgba(244,179,34,.75)}
-.sc .sc-key[disabled]{opacity:.35;cursor:default}
-.sc .sc-skip{position:absolute;top:30px;right:34px;background:none;border:0;color:#cfd3e6;font-size:24px;cursor:pointer;padding:8px 12px}
-@media (prefers-reduced-motion:reduce){.sc .lavaA,.sc .lavaB,.sc .rays,.sc .spk{animation:none}.sc .sc-pg{transition:none}}
+.sc .sc-keys{position:absolute;left:50px;right:50px;bottom:56px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.sc .sc-key{height:136px;border:2px solid rgba(255,255,255,.35);border-radius:26px;color:#fff;font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:.04em;text-transform:uppercase;line-height:1.05;padding:0 14px;cursor:pointer;text-shadow:0 2px 3px rgba(0,0,0,.5);
+  box-shadow:0 12px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 18px 30px rgba(0,0,0,.5);transform:translateY(0);transition:transform .08s,box-shadow .08s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.sc .sc-key:active,.sc .sc-key.sc-down{transform:translateY(11px);box-shadow:0 1px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.25),0 4px 10px rgba(0,0,0,.4)}
+.sc .sc-key.red{background:linear-gradient(180deg,#a3102b,#74091c)}
+.sc .sc-key.org{background:linear-gradient(180deg,#f4b322,#d97a06)}
+.sc .sc-key.blu{background:linear-gradient(180deg,#1a43b0,#0d2a78)}
+.sc .sc-key.sc-glow{border-color:#fff;box-shadow:0 12px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 0 40px rgba(244,179,34,.85)}
+.sc .sc-key[disabled]{opacity:.4;cursor:default}
+.sc .sc-skip{position:absolute;top:34px;right:38px;background:none;border:0;color:#cfd3e6;font-size:28px;cursor:pointer;padding:8px 12px}
+@media (prefers-reduced-motion:reduce){.sc .lv,.sc .ry{animation:none}.sc .sc-pg{transition:none}}
 `;
   const st=document.createElement('style');st.textContent=css;document.head.append(st);
 
-  /* Background: amber glow on the left, a slow blend in the middle, blue darkening to navy at the right; rays and sparkles. All vector. */
-  let spk='';for(let n=0;n<26;n++){const x=(n*137.5)%1000,y=(n*271.3)%1000,r=1.5+(n%4)*.9;spk+=`<circle class="spk" cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r}" fill="#fff" style="animation-delay:${(n*.71%9).toFixed(2)}s"/>`;}
-  let rays='';for(let n=0;n<12;n++)rays+=`<path d="M500 500 L${(500+900*Math.cos(n*Math.PI/6)).toFixed(0)} ${(500+900*Math.sin(n*Math.PI/6)).toFixed(0)} L${(500+900*Math.cos(n*Math.PI/6+.09)).toFixed(0)} ${(500+900*Math.sin(n*Math.PI/6+.09)).toFixed(0)}Z" fill="url(#scRay)"/>`;
-  const bg=`<svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>
-<linearGradient id="scBase" x1="0" x2="1"><stop offset="0" stop-color="#ff8a1c"/><stop offset=".28" stop-color="#d9480f"/><stop offset=".5" stop-color="#5b2a6e"/><stop offset=".74" stop-color="#1847c8"/><stop offset="1" stop-color="#03061a"/></linearGradient>
-<radialGradient id="scA"><stop offset="0" stop-color="#ffb02e" stop-opacity=".95"/><stop offset="1" stop-color="#ff5a00" stop-opacity="0"/></radialGradient>
-<radialGradient id="scB"><stop offset="0" stop-color="#2f6bff" stop-opacity=".85"/><stop offset="1" stop-color="#0a1a6b" stop-opacity="0"/></radialGradient>
-<radialGradient id="scRay" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(500 500) scale(900)"><stop offset="0" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-</defs>
-<rect width="1000" height="1000" fill="url(#scBase)"/>
-<g><circle class="lavaA" cx="220" cy="420" r="320" fill="url(#scA)"/><circle class="lavaB" cx="760" cy="600" r="340" fill="url(#scB)"/></g>
-<g class="rays">${rays}</g>${spk}</svg>`;
+  /* Sparkles stay still (no blinking); the glows and rays move slowly as whole layers. All vector. */
+  let spk='';for(let n=0;n<26;n++){const x=(n*137.5)%1000,y=(n*271.3)%1000,r=1.5+(n%4)*.9;spk+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r}" fill="#fff" opacity="${(.3+(n%3)*.15).toFixed(2)}"/>`;}
+  const bg=`<div class="lv lvA"></div><div class="lv lvB"></div><div class="ry"></div><div class="sp"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${spk}</svg></div>`;
 
   const esc=s=>s;
   const pageHTML=(p,i)=>{
-    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}" data-i="${i}" aria-hidden="true"><p class="sc-kick">${esc(p.k)}</p><h2>${p.t}</h2>`;
+    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk<small>Human directs · Claude operates</small></p>':'<p class="sc-mark" style="font-size:64px">Director\'s Desk</p><p class="sc-kick">'+esc(p.k)+'</p>')+`<h2>${p.t}</h2>`;
     if(p.s)h+=`<p class="sc-sub">${p.s}</p>`;
     if(p.items)h+='<ul>'+p.items.map(([e,b,s])=>`<li><i aria-hidden="true">${e}</i><div><b>${b}</b><span>${s}</span></div></li>`).join('')+'</ul>';
     if(p.cover)h+='<p class="sc-credit">Concept &amp; design: Ovi Demetrian</p>';
     return h+'</section>';};
 
   const sc=document.createElement('div');sc.className='sc';sc.setAttribute('role','dialog');sc.setAttribute('aria-modal','true');sc.setAttribute('aria-label','Director\'s Desk: the story');
-  sc.innerHTML=`<div class="sc-bg">${bg}</div><div class="sc-stage">${PAGES.map(pageHTML).join('')}
+  sc.innerHTML=`${bg}<div class="sc-stage">${PAGES.map(pageHTML).join('')}
 <button type="button" class="sc-skip" id="scSkip">Skip ›</button>
 <div class="sc-dots">${PAGES.map(()=>'<b></b>').join('')}</div>
 <div class="sc-keys"><button type="button" class="sc-key red" id="scBack">‹ Back</button><button type="button" class="sc-key org" id="scMid"></button><button type="button" class="sc-key blu" id="scNext">Next ›</button></div></div>`;
@@ -124,7 +121,7 @@
   const mount=()=>{document.body.append(sc);fit();show(0);setTimeout(()=>{try{$m('#scNext').focus();}catch(_){}},60);};
   const $m=s=>sc.querySelector(s);
   const stage=()=>sc.querySelector('.sc-stage');
-  function fit(){const s=Math.min(innerWidth,innerHeight)/1000*.96;stage().style.transform='scale('+s+')';}
+  function fit(){const s=Math.min(innerWidth/W,innerHeight/H)*.97;stage().style.transform='scale('+s+')';}
   addEventListener('resize',fit);
 
   let cur=0;
