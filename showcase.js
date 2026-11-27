@@ -40,7 +40,7 @@
       ['✋','Hands off the kill switches','HUSH and Blackout stay human; Claude can’t reach them'],
       ['❓','The next GO, shown first','ARE YOU SURE? shows what will change before you press it'],
       ['🎤','Artist talks, desk cues','“band in at 1:30” becomes sound, light and camera cues']]},
-    {k:'Curtain up',end:true,t:'Break<br>a leg.',s:'The tank shows next.<br>Check the checklist first,<br>then GO for a good show.'}
+    {k:'Curtain up',end:true,t:'“Break<br>a leg.”'}
   ];
 
   const W=1000,H=1950; /* a long modern phone shape; the same picture on every screen */
@@ -52,7 +52,7 @@
 .sc::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:rgba(0,0,0,.25)} /* dims the moving background only; the glass sits above it */
 .sc .sc-stage{z-index:2}
 .sc .sc-stage{position:relative;width:${W}px;height:${H}px;flex:none;transform-origin:center;border-radius:44px;
-  background:linear-gradient(180deg,rgba(74,58,18,.86),rgba(52,40,12,.9));border:2px solid rgba(244,179,34,.45);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 30px 90px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,230,160,.18)}
+  background:linear-gradient(180deg,rgba(74,58,18,.58),rgba(52,40,12,.64));border:2px solid rgba(244,179,34,.45);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 30px 90px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,230,160,.18)}
 .sc .sc-pg{position:absolute;inset:0;padding:120px 64px 250px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
 .sc .sc-pg.on{opacity:1;transform:none;pointer-events:auto}
 .sc .sc-pg.sc-out{transform:translateX(-60px)}
@@ -75,11 +75,12 @@
 .sc .sc-list li span{font-size:38px;line-height:1.12;letter-spacing:0}
 .sc .sc-cover h2{font-size:86px;margin-top:90px;line-height:1.05}
 .sc .sc-cover .sc-mark small{letter-spacing:.24em}
-.sc .sc-end h2{font-size:150px;line-height:1}
+.sc .sc-end h2{font-size:120px;line-height:1.02;margin-top:70px}
+.sc .sc-pg.sc-end .sc-corner{font-size:156px;line-height:.98;margin:0}
 .sc .sc-sub{font-size:46px;line-height:1.3;color:#f4b322;margin:0}
 .sc .sc-end .sc-sub{font-size:44px;max-width:860px}
 .sc ul{list-style:none;margin:0;padding:0;display:grid;gap:12px;width:100%;text-align:left}
-.sc li{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:22px;padding:15px 24px;border-radius:18px;background:rgba(10,8,2,.42);border:1px solid rgba(244,179,34,.22)}
+.sc li{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:22px;padding:15px 24px;border-radius:18px;background:rgba(10,8,2,.3);border:1px solid rgba(244,179,34,.24)}
 .sc li i{font-style:normal;font-size:54px;text-align:center}
 .sc li b{display:block;font-family:var(--display);font-weight:700;font-size:42px;letter-spacing:.02em;line-height:1.05;margin-bottom:4px}
 .sc li span{display:block;font-size:28px;line-height:1.2;letter-spacing:.02em;color:#f4b322}
@@ -91,9 +92,9 @@
 .sc .sc-key{height:96px;border:2px solid rgba(255,255,255,.35);border-radius:26px;color:#fff;font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.04em;text-transform:uppercase;line-height:1.05;padding:0 10px;cursor:pointer;text-shadow:0 2px 3px rgba(0,0,0,.5);
   box-shadow:0 9px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 18px 30px rgba(0,0,0,.5);transform:translateY(0);transition:transform .08s,box-shadow .08s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .sc .sc-key:active,.sc .sc-key.sc-down{transform:translateY(8px);border-color:#fff;box-shadow:0 1px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 0 44px 6px rgba(255,255,255,.75)}
-.sc .sc-key.red{background:linear-gradient(180deg,#a3102b,#74091c)}
-.sc .sc-key.org{background:linear-gradient(180deg,#f4b322,#d97a06)}
-.sc .sc-key.blu{background:linear-gradient(180deg,#1a43b0,#0d2a78)}
+.sc .sc-key.red{background:linear-gradient(180deg,rgba(163,16,43,.82),rgba(116,9,28,.82))}
+.sc .sc-key.org{background:linear-gradient(180deg,rgba(244,179,34,.82),rgba(217,122,6,.82))}
+.sc .sc-key.blu{background:linear-gradient(180deg,rgba(26,67,176,.82),rgba(13,42,120,.82))}
 .sc .sc-bar{position:absolute;left:90px;right:90px;bottom:176px;height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
 .sc .sc-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f4b322,#fff,#8fb3ff)}
 @media (prefers-reduced-motion:reduce){.sc .sc-pg{transition:none}}
