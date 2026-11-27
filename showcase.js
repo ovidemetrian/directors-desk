@@ -37,6 +37,7 @@
       ['🛡','Local first','the show path never needs the internet'],
       ['🔑','The content is the key','a system from Media Content Delivery']]},
     {k:'Part 4 of 4',t:'Why it’s different',items:[
+      ['⚡','One transistor less','the tiny switch in every chip: fewer parts, fewer failures'],
       ['🎤','Artist talks, desk cues','“band in at 1:30” becomes sound, light and camera cues'],
       ['🎚','Built in the booth','designed by an operator who has run the switcher, not by a lab'],
       ['😄','Shifts start with a smile','humor switch: Macbeth in a cue is held, ghost light stays on'],
