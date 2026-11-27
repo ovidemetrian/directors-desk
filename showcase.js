@@ -45,21 +45,15 @@
 
   const W=1000,H=1950; /* a long modern phone shape; the same picture on every screen */
   const css=`
-.sc{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(90deg,#ff8a1c 0%,#d9480f 28%,#5b2a6e 50%,#1847c8 74%,#03061a 100%);font-family:var(--body);color:#fff;touch-action:pan-y}
-/* Background moves only by sliding and turning whole layers (the graphics chip does that), never by redrawing: no flicker */
-.sc .lv{position:absolute;width:90vmax;height:90vmax;border-radius:50%;pointer-events:none;will-change:transform;backface-visibility:hidden}
-.sc .lvA{left:-30vmax;top:-10vmax;background:radial-gradient(circle,rgba(255,176,46,.9) 0%,rgba(255,90,0,0) 65%);animation:scLavaA 40s ease-in-out infinite alternate}
-.sc .lvB{right:-30vmax;bottom:-20vmax;background:radial-gradient(circle,rgba(47,107,255,.8) 0%,rgba(10,26,107,0) 65%);animation:scLavaB 47s ease-in-out infinite alternate}
-.sc .ry{position:absolute;left:50%;top:50%;width:200vmax;height:200vmax;margin:-100vmax 0 0 -100vmax;pointer-events:none;will-change:transform;backface-visibility:hidden;
-  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.08) 0deg 4deg,rgba(255,255,255,0) 4deg 30deg);
-  -webkit-mask:radial-gradient(circle,#000 0%,transparent 60%);mask:radial-gradient(circle,#000 0%,transparent 60%);animation:scSpin 200s linear infinite}
+.sc{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(180deg,#000 0%,#02040c 58%,#000 100%);font-family:var(--body);color:#fff;touch-action:pan-y}
+/* Infinite grid: a neon floor rolling toward you forever under a black sky, never arriving.
+   The horizon sits on the keys line, so the text reads on clean black sky. */
+.sc .tg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block}
+.sc .hz{position:absolute;left:0;right:0;top:80%;height:2px;background:#8fe9ff;box-shadow:0 0 16px 3px rgba(0,190,255,.6),0 0 60px 12px rgba(0,120,255,.22);pointer-events:none}
 .sc .sp{position:absolute;inset:0;pointer-events:none}
 .sc .sp svg{width:100%;height:100%;display:block}
-.sc::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:rgba(4,6,20,.5)} /* dims the moving background only; the glass sits above it */
+.sc::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:rgba(0,0,0,.25)} /* dims the moving background only; the glass sits above it */
 .sc .sc-stage{z-index:2}
-@keyframes scLavaA{to{transform:translate3d(12vmax,8vmax,0)}}
-@keyframes scLavaB{to{transform:translate3d(-10vmax,-7vmax,0)}}
-@keyframes scSpin{to{transform:rotate(360deg)}}
 .sc .sc-stage{position:relative;width:${W}px;height:${H}px;flex:none;transform-origin:center;border-radius:44px;
   background:rgba(10,12,28,.32);border:2px solid rgba(255,255,255,.22);box-shadow:0 30px 90px rgba(0,0,0,.35)}
 .sc .sc-pg{position:absolute;inset:0;padding:120px 64px 250px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
@@ -105,13 +99,13 @@
 .sc .sc-key.blu{background:linear-gradient(180deg,#1a43b0,#0d2a78)}
 .sc .sc-bar{position:absolute;left:90px;right:90px;bottom:176px;height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
 .sc .sc-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f4b322,#fff,#8fb3ff)}
-@media (prefers-reduced-motion:reduce){.sc .lv,.sc .ry{animation:none}.sc .sc-pg{transition:none}}
+@media (prefers-reduced-motion:reduce){.sc .sc-pg{transition:none}}
 `;
   const st=document.createElement('style');st.textContent=css;document.head.append(st);
 
-  /* Sparkles stay still (no blinking); the glows and rays move slowly as whole layers. All vector. */
-  let spk='';for(let n=0;n<26;n++){const x=(n*137.5)%1000,y=(n*271.3)%1000,r=1.5+(n%4)*.9;spk+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r}" fill="#fff" opacity="${(.3+(n%3)*.15).toFixed(2)}"/>`;}
-  const bg=`<div class="lv lvA"></div><div class="lv lvB"></div><div class="ry"></div><div class="sp"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${spk}</svg></div>`;
+  /* Stars stay still in the black sky (no blinking); only the grid floor moves. All vector. */
+  let spk='';for(let n=0;n<26;n++){const x=(n*137.5)%1000,y=(n*271.3)%600,r=1.5+(n%4)*.9;spk+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r}" fill="#fff" opacity="${(.3+(n%3)*.15).toFixed(2)}"/>`;}
+  const bg=`<canvas class="tg" aria-hidden="true"></canvas><div class="hz"></div><div class="sp"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${spk}</svg></div>`;
 
   const esc=s=>s;
   const pageHTML=(p,i)=>{
@@ -132,18 +126,28 @@
   const stage=()=>sc.querySelector('.sc-stage');
   function fit(){const s=Math.min(innerWidth*.84/W,innerHeight*.93/H);stage().style.transform='scale('+s+')';
     /* keep the sparkles out from behind the glass: they read like stray dots on the text */
+    const k=sc.querySelector('.sc-keys').getBoundingClientRect();HZ=Math.round(k.top);const hz=sc.querySelector('.hz');if(hz)hz.style.top=HZ+'px';
+    DPR=Math.min(2,devicePixelRatio||1);cv.width=innerWidth*DPR;cv.height=innerHeight*DPR;
     const r=stage().getBoundingClientRect(),sp=sc.querySelector('.sp');if(sp)sp.style.clipPath=`path(evenodd,'M0 0H${innerWidth}V${innerHeight}H0Z M${r.left} ${r.top}H${r.right}V${r.bottom}H${r.left}Z')`;}
   addEventListener('resize',fit);
 
   /* The story plays by itself and loops forever: page after page, back to the start. The keys only steer it.
      No skip anywhere: the way into the desk is at the end of the story. */
   let cur=0,playing=true,t0=0,raf=0;
+  const cv=sc.querySelector('.tg'),gx=cv.getContext('2d'),still=matchMedia('(prefers-reduced-motion: reduce)').matches;let HZ=0,DPR=1;
+  /* the grid: lines run to one vanishing point on the horizon; 91 px between them at the bottom edge; rows roll in forever */
+  function grid(ms){if(!gx)return;const W=innerWidth,H=innerHeight,cx=W/2,hz=HZ,deep=H-hz;gx.setTransform(DPR,0,0,DPR,0,0);gx.clearRect(0,0,W,H);if(deep<8)return;
+    const ph=still?0:(ms/1400)%1;gx.lineWidth=1.4;
+    for(let n=-40;n<=40;n++){const xb=cx+n*91*(H-hz)/Math.max(60,deep);gx.strokeStyle='rgba(0,200,255,.55)';gx.beginPath();gx.moveTo(cx,hz);gx.lineTo(cx+(xb-cx)*1.6,hz+deep*1.6);gx.stroke();}
+    for(let i=0;i<60;i++){const z=i+1-ph,y=hz+deep*(1.2/z);if(y>H+2)continue;if(y-hz<1)break;const a=Math.min(.75,(y-hz)/deep*1.4);gx.strokeStyle='rgba(0,200,255,'+a.toFixed(3)+')';gx.beginPath();gx.moveTo(0,y);gx.lineTo(W,y);gx.stroke();}
+    const fade=gx.createLinearGradient(0,hz,0,hz+Math.min(deep,90));fade.addColorStop(0,'rgba(0,0,0,.85)');fade.addColorStop(1,'rgba(0,0,0,0)');gx.fillStyle=fade;gx.fillRect(0,hz,W,Math.min(deep,90));}
+
   const N=PAGES.length,wrap=i=>(i%N+N)%N,DUR=i=>PAGES[i].items?9000:6000;
   function tick(now){
     if(!t0)t0=now;
     const p=Math.min(1,(now-t0)/DUR(cur)),bar=$m('#scBar');if(bar)bar.style.width=(playing?p*100:0).toFixed(1)+'%';
     if(playing&&p>=1)show(cur+1);
-    raf=requestAnimationFrame(tick);
+    grid(now);raf=requestAnimationFrame(tick);
   }
   function show(i){
     cur=wrap(i);t0=0;
