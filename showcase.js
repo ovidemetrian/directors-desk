@@ -51,17 +51,18 @@
 .sc{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#05070f;font-family:var(--body);color:#fff;touch-action:pan-y}
 .sc .sc-bg{position:absolute;inset:-20%;pointer-events:none}
 .sc .sc-bg svg{width:100%;height:100%;display:block}
-.sc .lavaA{animation:scLavaA 26s ease-in-out infinite alternate}
-.sc .lavaB{animation:scLavaB 31s ease-in-out infinite alternate}
-.sc .rays{transform-origin:500px 500px;animation:scSpin 120s linear infinite}
-.sc .spk{animation:scTw 3.4s ease-in-out infinite}
+.sc .lavaA,.sc .lavaB,.sc .rays{will-change:transform}
+.sc .lavaA{animation:scLavaA 40s ease-in-out infinite alternate}
+.sc .lavaB{animation:scLavaB 47s ease-in-out infinite alternate}
+.sc .rays{transform-origin:500px 500px;animation:scSpin 200s linear infinite}
+.sc .spk{opacity:.35;animation:scTw 9s ease-in-out infinite}
 @keyframes scLavaA{to{transform:translate(90px,60px) scale(1.12)}}
 @keyframes scLavaB{to{transform:translate(-80px,-50px) scale(1.1)}}
 @keyframes scSpin{to{transform:rotate(360deg)}}
-@keyframes scTw{0%,100%{opacity:.1}50%{opacity:.95}}
+@keyframes scTw{0%,100%{opacity:.25}50%{opacity:.6}}
 .sc .sc-stage{position:relative;width:1000px;height:1000px;flex:none;transform-origin:center;border-radius:36px;
-  background:rgba(8,10,22,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:0 40px 120px rgba(0,0,0,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.sc .sc-pg{position:absolute;inset:0;padding:56px 70px 170px;display:flex;flex-direction:column;opacity:0;transform:translateX(60px);transition:opacity .45s,transform .45s;pointer-events:none}
+  background:rgba(8,10,22,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:0 40px 120px rgba(0,0,0,.55);background:rgba(8,10,22,.5)}
+.sc .sc-pg{position:absolute;inset:0;padding:56px 70px 170px;display:flex;flex-direction:column;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
 .sc .sc-pg.on{opacity:1;transform:none;pointer-events:auto}
 .sc .sc-pg.sc-out{transform:translateX(-60px)}
 .sc .sc-kick{font-family:var(--display);font-weight:600;font-size:30px;letter-spacing:.18em;text-transform:uppercase;color:#f4b322;margin:0 0 14px}
@@ -94,16 +95,16 @@
   const st=document.createElement('style');st.textContent=css;document.head.append(st);
 
   /* Background: amber glow on the left, a slow blend in the middle, blue darkening to navy at the right; rays and sparkles. All vector. */
-  let spk='';for(let n=0;n<26;n++){const x=(n*137.5)%1000,y=(n*271.3)%1000,r=1.5+(n%4)*.9;spk+=`<circle class="spk" cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r}" fill="#fff" style="animation-delay:${(n*.37%3.4).toFixed(2)}s"/>`;}
+  let spk='';for(let n=0;n<26;n++){const x=(n*137.5)%1000,y=(n*271.3)%1000,r=1.5+(n%4)*.9;spk+=`<circle class="spk" cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r}" fill="#fff" style="animation-delay:${(n*.71%9).toFixed(2)}s"/>`;}
   let rays='';for(let n=0;n<12;n++)rays+=`<path d="M500 500 L${(500+900*Math.cos(n*Math.PI/6)).toFixed(0)} ${(500+900*Math.sin(n*Math.PI/6)).toFixed(0)} L${(500+900*Math.cos(n*Math.PI/6+.09)).toFixed(0)} ${(500+900*Math.sin(n*Math.PI/6+.09)).toFixed(0)}Z" fill="url(#scRay)"/>`;
   const bg=`<svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>
 <linearGradient id="scBase" x1="0" x2="1"><stop offset="0" stop-color="#ff8a1c"/><stop offset=".28" stop-color="#d9480f"/><stop offset=".5" stop-color="#5b2a6e"/><stop offset=".74" stop-color="#1847c8"/><stop offset="1" stop-color="#03061a"/></linearGradient>
 <radialGradient id="scA"><stop offset="0" stop-color="#ffb02e" stop-opacity=".95"/><stop offset="1" stop-color="#ff5a00" stop-opacity="0"/></radialGradient>
 <radialGradient id="scB"><stop offset="0" stop-color="#2f6bff" stop-opacity=".85"/><stop offset="1" stop-color="#0a1a6b" stop-opacity="0"/></radialGradient>
-<radialGradient id="scRay" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(500 500) scale(900)"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-<filter id="scBlur"><feGaussianBlur stdDeviation="60"/></filter></defs>
+<radialGradient id="scRay" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(500 500) scale(900)"><stop offset="0" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+</defs>
 <rect width="1000" height="1000" fill="url(#scBase)"/>
-<g filter="url(#scBlur)"><circle class="lavaA" cx="220" cy="420" r="320" fill="url(#scA)"/><circle class="lavaB" cx="760" cy="600" r="340" fill="url(#scB)"/></g>
+<g><circle class="lavaA" cx="220" cy="420" r="320" fill="url(#scA)"/><circle class="lavaB" cx="760" cy="600" r="340" fill="url(#scB)"/></g>
 <g class="rays">${rays}</g>${spk}</svg>`;
 
   const esc=s=>s;
