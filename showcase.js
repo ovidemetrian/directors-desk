@@ -8,8 +8,8 @@
 
   const PAGES=[
     {k:'Director\'s Desk',cover:true,
-     t:'You call<br>the show<br><em>Claude runs<br>the board</em>',
-     s:'The off switch stays human'},
+     t:'The whole show<br>on one desk<em>Sound · Cameras<br>Lights · Crew</em>',
+     s:'Its own EpicOS show box<br>No internet needed'},
     {k:'Part 1 of 4',t:'What we built',items:[
       ['🎛','The Desk','sound, cameras, lights and stream on one tablet'],
       ['🤖','Claude operates','sound, cameras and lights, on the Director’s GO'],
@@ -73,8 +73,8 @@
 .sc .sc-list li{padding:10px 22px}
 .sc .sc-list li b{font-size:46px}
 .sc .sc-list li span{font-size:38px;line-height:1.12;letter-spacing:0}
-.sc .sc-cover h2{font-size:96px;margin-top:80px;line-height:1.02}
-.sc .sc-cover h2 em{display:block;margin-top:34px;font-style:normal;color:#8fe9ff;text-shadow:0 0 28px rgba(0,190,255,.45)}
+.sc .sc-cover h2{font-size:82px;margin-top:80px;line-height:1.04}
+.sc .sc-cover h2 em{display:block;margin-top:34px;font-size:.84em;font-style:normal;color:#8fe9ff;text-shadow:0 0 28px rgba(0,190,255,.45)}
 .sc .sc-cover .sc-mark small{letter-spacing:.24em}
 .sc .sc-pg.sc-end .sc-corner{font-size:156px;line-height:.98;margin:0}
 .sc .sc-end .sc-kick{display:none}
