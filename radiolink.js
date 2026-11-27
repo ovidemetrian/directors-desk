@@ -28,3 +28,6 @@
     shared(){return !!room||!!(window.ShowBox&&ShowBox.live());}
   };
 })();
+
+/* Desk only: the story splash plays first (showcase.js checks it is on the desk) */
+if(document.getElementById("introCard")){const s=document.createElement("script");s.src="showcase.js";document.body.appendChild(s);}
