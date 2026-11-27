@@ -40,7 +40,7 @@
       ['✋','Hands off the kill switches','HUSH and Blackout stay human; Claude can’t reach them'],
       ['❓','The next GO, shown first','ARE YOU SURE? shows what will change before you press it'],
       ['🎤','Artist talks, desk cues','“band in at 1:30” becomes sound, light and camera cues']]},
-    {k:'Curtain up',end:true,t:'“Break<br>a leg.”'}
+    {k:'Curtain up',end:true,t:'“Break<br>a leg”'}
   ];
 
   const W=1000,H=1950; /* a long modern phone shape; the same picture on every screen */
@@ -52,7 +52,7 @@
 .sc::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:rgba(0,0,0,.25)} /* dims the moving background only; the glass sits above it */
 .sc .sc-stage{z-index:2}
 .sc .sc-stage{position:relative;width:${W}px;height:${H}px;flex:none;transform-origin:center;border-radius:44px;
-  background:linear-gradient(180deg,rgba(74,58,18,.58),rgba(52,40,12,.64));border:2px solid rgba(244,179,34,.45);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 30px 90px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,230,160,.18)}
+  background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.08));border:2px solid rgba(255,255,255,.34);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 30px 90px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.22)}
 .sc .sc-pg{position:absolute;inset:0;padding:120px 64px 250px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
 .sc .sc-pg.on{opacity:1;transform:none;pointer-events:auto}
 .sc .sc-pg.sc-out{transform:translateX(-60px)}
@@ -75,13 +75,13 @@
 .sc .sc-list li span{font-size:38px;line-height:1.12;letter-spacing:0}
 .sc .sc-cover h2{font-size:86px;margin-top:90px;line-height:1.05}
 .sc .sc-cover .sc-mark small{letter-spacing:.24em}
-.sc .sc-end h2{font-size:120px;line-height:1.02;margin-top:70px}
+.sc .sc-end h2{font-family:'Playfair Display','Bodoni 72',Didot,'Noto Serif',Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;font-size:128px;line-height:1.04;letter-spacing:.02em;margin-top:80px}
 .sc .sc-pg.sc-end .sc-corner{font-size:156px;line-height:.98;margin:0}
 .sc .sc-end .sc-kick{display:none}
 .sc .sc-sub{font-size:46px;line-height:1.3;color:#f4b322;margin:0}
 .sc .sc-end .sc-sub{font-size:44px;max-width:860px}
 .sc ul{list-style:none;margin:0;padding:0;display:grid;gap:12px;width:100%;text-align:left}
-.sc li{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:22px;padding:15px 24px;border-radius:18px;background:rgba(10,8,2,.3);border:1px solid rgba(244,179,34,.24)}
+.sc li{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:22px;padding:15px 24px;border-radius:18px;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.2)}
 .sc li i{font-style:normal;font-size:54px;text-align:center}
 .sc li b{display:block;font-family:var(--display);font-weight:700;font-size:42px;letter-spacing:.02em;line-height:1.05;margin-bottom:4px}
 .sc li span{display:block;font-size:28px;line-height:1.2;letter-spacing:.02em;color:#f4b322}
