@@ -50,6 +50,7 @@
 .sc .sc-pg:not(.sc-list) .sc-corner{position:static;font-size:72px}
 .sc .sc-list{justify-content:flex-start;padding:112px 30px 252px}
 .sc .sc-list .sc-kick{top:47px;right:40px;line-height:1}
+.sc .sc-list .sc-tag{top:44px;font-size:36px;letter-spacing:.04em}
 .sc .sc-list h2{margin:0 0 16px;font-size:84px}
 .sc .sc-list ul{flex:1;display:flex;flex-direction:column;gap:22px;min-height:0;margin-top:20px}
 .sc .sc-list li{flex:1 1 auto}
@@ -91,7 +92,7 @@
 
   const esc=s=>s;
   const pageHTML=(p,i)=>{
-    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}${p.items?' sc-list':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk</p>':'<p class="sc-mark sc-corner">Director\'s Desk</p><p class="sc-kick">'+esc(p.k)+'</p>')+(p.t?`<h2>${p.t}</h2>`:'');
+    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}${p.items?' sc-list':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk</p>':(p.end?'<p class="sc-mark sc-corner">Director\'s Desk</p>':'<p class="sc-mark sc-corner sc-tag">An EPIC show run by an EPIC/OS</p>')+'<p class="sc-kick">'+esc(p.k)+'</p>')+(p.t?`<h2>${p.t}</h2>`:'');
     if(p.s)h+=`<p class="sc-sub">${p.s}</p>`;
     if(p.items)h+='<ul>'+p.items.map(([b,s])=>`<li><b>${b}</b><span>${s}</span></li>`).join('')+'</ul>';
     if(p.end)h+='<p class="sc-credit">Design by Ovi Demetrian</p>';
