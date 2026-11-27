@@ -12,17 +12,14 @@
      s:'HUSH stays human.'},
     {k:'Part 1 of 4',t:'What we built',items:[
       ['🎛','The Desk','sound, cameras, lights and stream on one tablet'],
-      ['🤖','Claude operates','every change read back, so you know it happened'],
-      ['✋','HUSH and Blackout','human hands only; the AI can’t touch them'],
+      ['🤖','Claude operates','sound, cameras and lights, on the Director’s GO'],
       ['🔀','The AI switch','OFF · WATCH · ON, and only the Director turns it up'],
-      ['❓','ARE YOU SURE?','shows what the next GO will change, before you press it'],
       ['📱','Crew Radio','a silent walkie-talkie on every crew phone'],
       ['🎬','Show Flow','rundown → meeting → rehearsal → READY TO GO → live'],
       ['📦','The show box','a local server and a Q-SYS bridge over QRC']]},
     {k:'Part 2 of 4',t:'Improvements',items:[
       ['💡','Lights joined in','one GO moves sound, cameras and lights together'],
       ['⛽','PRE-SHOW tank','every link checked and signed before the first button'],
-      ['📖','Show Grammar','exact commands from the show’s gear, no guessing'],
       ['🔔','A sound language','OK · NO · ATTENTION · WARNING, so you can work by ear'],
       ['🏢','Rooms fleet','CollabOS rooms across offices; Claude proposes, a human approves'],
       ['☁️','Cloud down, show on','platform failover, learned from the Microsoft outage'],
@@ -34,17 +31,15 @@
       ['🏟','Venue · 2,000','six screens plus a wall, with crews and remote sites'],
       ['🔌','Q-SYS today','the same grammar can drive any brand’s gear tomorrow'],
       ['🌐','Every meeting room','one fleet, one director, Claude watching the faults'],
-      ['🛡','Local first','the show path never needs the internet'],
+      ['💻','Any small computer','the show box runs on a small PC, no special hardware'],
       ['🔑','The content is the key','a system from Media Content Delivery']]},
-    {k:'Part 4 of 4',t:'Why it’s different',items:[
+    {k:'Part 4 of 4',t:'Why trust AI<br>with a live show',items:[
       ['📦','No internet, show goes on','its own local server runs the whole show, no cloud needed'],
-      ['🎤','Artist talks, desk cues','“band in at 1:30” becomes sound, light and camera cues'],
-      ['🎚','Built in the booth','designed by an operator who has run the switcher, not by a lab'],
-      ['😄','Shifts start with a smile','humor switch: Macbeth in a cue is held, ghost light stays on'],
-      ['🔀','Plan B, rehearsed','next: every cue has its alternatives ready before doors open'],
-      ['🏛','Every room has a host','next: each meeting room gets its own AI emcee, linked room to room'],
-      ['🎙','Mics that talk','next: every mic speaks one language, directed from the desk'],
-      ['👕','Wardrobe and props','next: the right sweater for the show, and no lav rustle']]},
+      ['📖','It never improvises','only the commands written for this show’s own gear'],
+      ['🧾','Every move read back','each change confirmed, timed and signed: human or Claude'],
+      ['✋','Hands off the kill switches','HUSH and Blackout stay human; Claude can’t reach them'],
+      ['❓','The next GO, shown first','ARE YOU SURE? shows what will change before you press it'],
+      ['🎤','Artist talks, desk cues','“band in at 1:30” becomes sound, light and camera cues']]},
     {k:'Curtain up',end:true,t:'Break<br>a leg.',s:'The tank shows next.<br>Check the checklist first,<br>then GO for a good show.'}
   ];
 
