@@ -31,7 +31,6 @@
       ['🏟','Venue · 2,000','six screens plus a wall, with crews and remote sites'],
       ['🔌','Q-SYS today','the same grammar can drive any brand’s gear tomorrow'],
       ['🌐','Every meeting room','one fleet, one director, Claude watching the faults'],
-      ['💻','Any small computer','Epic OS turns a small PC into the show box, no special hardware'],
       ['🔑','The content is the key','a system from Media Content Delivery']]},
     {k:'Part 4 of 4',t:'Why trust AI<br>with a live show',items:[
       ['📦','No internet, show goes on','its own local server runs the whole show, no cloud needed'],
@@ -108,10 +107,10 @@
 
   const esc=s=>s;
   const pageHTML=(p,i)=>{
-    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}${p.items?' sc-list':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk<small>Human directs · Claude operates</small></p>':'<p class="sc-mark sc-corner">Director\'s Desk</p><p class="sc-kick">'+esc(p.k)+'</p>')+(p.t?`<h2>${p.t}</h2>`:'');
+    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}${p.items?' sc-list':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk</p>':'<p class="sc-mark sc-corner">Director\'s Desk'+(p.end?'<small>Human directs · Claude operates</small>':'')+'</p><p class="sc-kick">'+esc(p.k)+'</p>')+(p.t?`<h2>${p.t}</h2>`:'');
     if(p.s)h+=`<p class="sc-sub">${p.s}</p>`;
     if(p.items)h+='<ul>'+p.items.map(([e,b,s])=>`<li><i aria-hidden="true">${e}</i><div><b>${b}</b><span>${s}</span></div></li>`).join('')+'</ul>';
-    if(p.cover)h+='<p class="sc-credit">Concept &amp; design: Ovi Demetrian</p>';
+    if(p.end)h+='<p class="sc-credit">Concept &amp; design: Ovi Demetrian</p>';
     return h+'</section>';};
 
   const sc=document.createElement('div');sc.className='sc';sc.setAttribute('role','dialog');sc.setAttribute('aria-modal','true');sc.setAttribute('aria-label','Director\'s Desk: the story');
