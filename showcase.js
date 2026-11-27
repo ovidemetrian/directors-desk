@@ -37,13 +37,13 @@
       ['🛡','Local first','the show path never needs the internet'],
       ['🔑','The content is the key','a system from Media Content Delivery']]},
     {k:'Part 4 of 4',t:'Why it’s different',items:[
-      ['🎚','Made by an operator','designed by someone who has run the switcher, not by a lab'],
-      ['🤝','AI as crew','Claude is a crew member, never the boss'],
-      ['🔧','A transistor less','one dependency less means one less possible defect'],
-      ['👂','Eyes stay on stage','the desk answers by sound'],
-      ['🎭','Green Room','“Macbeth” in a cue is held, a ghost light stays on, “Break a leg”'],
-      ['🐐','“Meeeh”','a goat answers a mistake (only when off air)'],
-      ['🤫','Buzz, not squawk','crew phones vibrate instead of shouting in your ear']]},
+      ['🎤','Artist talks, desk cues','“band in at 1:30” becomes sound, light and camera cues'],
+      ['🎚','Built in the booth','designed by an operator who has run the switcher, not by a lab'],
+      ['😄','Shifts start with a smile','humor switch: Macbeth in a cue is held, ghost light stays on'],
+      ['🔀','Plan B, rehearsed','next: every cue has its alternatives ready before doors open'],
+      ['🏛','Every room has a host','next: each meeting room gets its own AI emcee, linked room to room'],
+      ['🎙','Mics that talk','next: every mic speaks one language, directed from the desk'],
+      ['👕','Wardrobe and props','next: the right sweater for the show, and no lav rustle']]},
     {k:'Curtain up',end:true,t:'Break<br>a leg.',s:'The tank shows next.<br>Check the checklist first,<br>then GO for a good show.'}
   ];
 
