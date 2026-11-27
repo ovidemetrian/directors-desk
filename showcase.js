@@ -9,7 +9,7 @@
   const PAGES=[
     {k:'Director\'s Desk',cover:true,
      t:'The whole show<br>on one desk<em>Sound · Cameras<br>Lights · Crew</em>',
-     s:'Its own EpicOS show box<br>No internet needed'},
+     s:'The same show every time<br>with or without AI'},
     {k:'Part 1 of 3',t:'How it works',items:[
       ['🎛','The Desk','sound, cameras, lights and stream on one tablet'],
       ['📦','The show box','a local server on EpicOS: the show runs offline'],
