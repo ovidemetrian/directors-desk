@@ -75,6 +75,17 @@
 .sc .sc-kick{position:absolute;top:52px;right:60px;margin:0;font-family:var(--display);font-weight:600;font-size:28px;letter-spacing:.16em;text-transform:uppercase;color:#f4b322}
 .sc h2{font-family:var(--display);font-weight:700;font-size:80px;line-height:1;margin:10px 0 34px;letter-spacing:.01em}
 .sc .sc-cover .sc-mark{font-size:128px}
+/* List pages: the name in the top-left corner, the count top-right, and the list fills everything down to the keys */
+.sc .sc-corner{position:absolute;top:30px;left:34px;margin:0;font-size:62px}
+.sc .sc-pg:not(.sc-list) .sc-corner{position:static;font-size:72px}
+.sc .sc-list{justify-content:flex-start;padding:112px 30px 228px}
+.sc .sc-list .sc-kick{top:50px;right:40px}
+.sc .sc-list h2{margin:0 0 16px;font-size:84px}
+.sc .sc-list ul{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
+.sc .sc-list li{flex:1 1 auto}
+.sc .sc-list li{padding:10px 22px}
+.sc .sc-list li b{font-size:46px}
+.sc .sc-list li span{font-size:38px;line-height:1.12;letter-spacing:0}
 .sc .sc-cover h2{font-size:86px;margin-top:90px;line-height:1.05}
 .sc .sc-cover .sc-mark small{letter-spacing:.24em}
 .sc .sc-end h2{font-size:150px;line-height:1}
@@ -108,7 +119,7 @@
 
   const esc=s=>s;
   const pageHTML=(p,i)=>{
-    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk<small>Human directs · Claude operates</small></p>':'<p class="sc-mark" style="font-size:72px">Director\'s Desk</p><p class="sc-kick">'+esc(p.k)+'</p>')+`<h2>${p.t}</h2>`;
+    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}${p.items?' sc-list':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk<small>Human directs · Claude operates</small></p>':'<p class="sc-mark sc-corner">Director\'s Desk</p><p class="sc-kick">'+esc(p.k)+'</p>')+`<h2>${p.t}</h2>`;
     if(p.s)h+=`<p class="sc-sub">${p.s}</p>`;
     if(p.items)h+='<ul>'+p.items.map(([e,b,s])=>`<li><i aria-hidden="true">${e}</i><div><b>${b}</b><span>${s}</span></div></li>`).join('')+'</ul>';
     if(p.cover)h+='<p class="sc-credit">Concept &amp; design: Ovi Demetrian</p>';
