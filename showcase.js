@@ -1,6 +1,6 @@
 /* Showcase splash: the story of the Desk, shown first on every new session, before the desk itself.
    A fixed phone-shaped stage (same picture on phone, tablet and TV), page to page with three push keys.
-   Concept & design: Ovi Demetrian. Built with Claude. */
+   Design by Ovi Demetrian. Built with Claude. */
 (function(){
   let seen=false;try{seen=sessionStorage.getItem('desk.showcase')==='1';}catch(_){}
   const force=/[?&]story\b/.test(location.search);
@@ -9,28 +9,21 @@
   const PAGES=[
     {k:'Director\'s Desk',cover:true,
      t:'The whole show<br>on one desk<em>Sound · Cameras<br>Lights · Crew</em>',
-     s:'The same show every time<br>with or without AI'},
-    {k:'Part 1 of 3',t:'How it works',items:[
-      ['🎛','The Desk','sound, cameras, lights and stream on one tablet'],
-      ['📦','The show box','a local server on EpicOS: the show runs offline'],
-      ['📱','Crew Radio','silent messages on every crew phone, no radio chatter'],
-      ['🎬','Show Flow','rundown → rehearsal → ready → live'],
-      ['⛽','PRE-SHOW check','every link tested and signed before the first cue'],
-      ['🔁','Tablet dropped? Show goes on','the box holds the show; scan your code on any spare device']]},
-    {k:'Part 2 of 3',t:'Where the AI fits',items:[
-      ['📝','Before the show','Claude drafts the cues and each crew member’s tasks'],
-      ['✔️','During the show','the desk runs the cues; Claude verifies, and settles the next step with the Director'],
-      ['🔀','The AI switch','OFF · WATCH · ON, and only the Director turns it up'],
-      ['📖','It never improvises','only the commands written for this show’s own gear'],
-      ['🧾','Every move read back','each change confirmed and logged: human or Claude'],
-      ['✋','Hands off the kill switches','mute-all and blackout stay human; Claude can’t reach them']]},
-    {k:'Part 3 of 3',t:'Where it stands',items:[
-      ['✅','Tested','the desk, Crew Radio and the show box, on a simulated Q-SYS Core'],
-      ['🎯','Next','the desk driving a Q-SYS Core in Q-SYS Designer'],
-      ['🔴','Then','a physical mute-all button, and a first real show'],
-      ['🖥','Later','more screens, meeting-room fleets, other brands’ gear'],
-      ['🔑','The content is the key','a system from Media Content Delivery']]},
-    {k:'Curtain up',end:true,t:''}
+     s:'The same show, every time'},
+    {k:'1 · 3',t:'How it works',items:[
+      ['One desk','sound, cameras, lights and stream from one tablet'],
+      ['Its own show box','runs offline on EPIC/OS'],
+      ['Crew Radio','silent messages to every crew phone'],
+      ['Pre-show check','every link verified before the first cue']]},
+    {k:'2 · 3',t:'The AI’s role',items:[
+      ['Prepares','drafts the cues and crew tasks before the show'],
+      ['Verifies','checks every step and agrees the next one with the Director'],
+      ['Stays in its lane','nothing outside the show plan; the kill switches stay human']]},
+    {k:'3 · 3',t:'Status',items:[
+      ['Built','the desk, Crew Radio, the show box'],
+      ['Next','a live test on a Q-SYS Core'],
+      ['Then','the first real show']]},
+    {k:'',end:true,t:''}
   ];
 
   const W=1000,H=1950; /* a long modern phone shape; the same picture on every screen */
@@ -58,11 +51,11 @@
 .sc .sc-list{justify-content:flex-start;padding:112px 30px 252px}
 .sc .sc-list .sc-kick{top:47px;right:40px;line-height:1}
 .sc .sc-list h2{margin:0 0 16px;font-size:84px}
-.sc .sc-list ul{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
+.sc .sc-list ul{flex:1;display:flex;flex-direction:column;gap:22px;min-height:0;margin-top:20px}
 .sc .sc-list li{flex:1 1 auto}
 .sc .sc-list li{padding:10px 22px}
-.sc .sc-list li b{font-size:46px}
-.sc .sc-list li span{font-size:38px;line-height:1.12;letter-spacing:0}
+.sc .sc-list li b{font-size:60px}
+.sc .sc-list li span{font-size:44px;line-height:1.15;letter-spacing:0}
 .sc .sc-cover h2{font-size:82px;margin-top:80px;line-height:1.04}
 .sc .sc-cover h2 em{display:block;margin-top:34px;font-size:.84em;font-style:normal;color:#8fe9ff;text-shadow:0 0 28px rgba(0,190,255,.45)}
 .sc .sc-cover .sc-mark small{letter-spacing:.24em}
@@ -71,7 +64,7 @@
 .sc .sc-sub{font-size:46px;line-height:1.3;color:#f4b322;margin:0}
 .sc .sc-end .sc-sub{font-size:44px;max-width:860px}
 .sc ul{list-style:none;margin:0;padding:0;display:grid;gap:12px;width:100%;text-align:left}
-.sc li{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:22px;padding:15px 24px;border-radius:18px;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.2)}
+.sc li{display:flex;flex-direction:column;justify-content:center;gap:10px;padding:15px 40px;border-radius:18px;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.2)}
 .sc li i{font-style:normal;font-size:54px;text-align:center}
 .sc li b{display:block;font-family:var(--display);font-weight:700;font-size:42px;letter-spacing:.02em;line-height:1.05;margin-bottom:4px}
 .sc li span{display:block;font-size:28px;line-height:1.2;letter-spacing:.02em;color:#f4b322}
@@ -98,15 +91,14 @@
 
   const esc=s=>s;
   const pageHTML=(p,i)=>{
-    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}${p.items?' sc-list':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk</p>':'<p class="sc-mark sc-corner">Director\'s Desk'+(p.end?'<small>Human directs · Claude assists</small>':'')+'</p><p class="sc-kick">'+esc(p.k)+'</p>')+(p.t?`<h2>${p.t}</h2>`:'');
+    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}${p.items?' sc-list':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk</p>':'<p class="sc-mark sc-corner">Director\'s Desk</p><p class="sc-kick">'+esc(p.k)+'</p>')+(p.t?`<h2>${p.t}</h2>`:'');
     if(p.s)h+=`<p class="sc-sub">${p.s}</p>`;
-    if(p.items)h+='<ul>'+p.items.map(([e,b,s])=>`<li><i aria-hidden="true">${e}</i><div><b>${b}</b><span>${s}</span></div></li>`).join('')+'</ul>';
-    if(p.end)h+='<p class="sc-credit">Concept &amp; design: Ovi Demetrian</p>';
+    if(p.items)h+='<ul>'+p.items.map(([b,s])=>`<li><b>${b}</b><span>${s}</span></li>`).join('')+'</ul>';
+    if(p.end)h+='<p class="sc-credit">Design by Ovi Demetrian</p>';
     return h+'</section>';};
 
   const sc=document.createElement('div');sc.className='sc';sc.setAttribute('role','dialog');sc.setAttribute('aria-modal','true');sc.setAttribute('aria-label','Director\'s Desk: the story');
   sc.innerHTML=`${bg}<div class="sc-stage">${PAGES.map(pageHTML).join('')}
-<div class="sc-bar"><i id="scBar"></i></div>
 <div class="sc-dots">${PAGES.map(()=>'<b></b>').join('')}</div>
 <div class="sc-keys"><button type="button" class="sc-key red" id="scBack">Back</button><button type="button" class="sc-key org" id="scMid"></button><button type="button" class="sc-key blu" id="scNext">Next</button></div></div>`;
 
@@ -126,11 +118,11 @@
   function grid(ms){if(!gx)return;const W=innerWidth,H=innerHeight,cx=W/2,hz=HZ,deep=H-hz;gx.setTransform(DPR,0,0,DPR,0,0);gx.clearRect(0,0,W,H);if(deep<8)return;
     /* true perspective of square tiles: the camera sits one unit above the floor; tiles are 91 px wide at the bottom edge;
        the ceiling is the same floor mirrored above the horizon, like a reflection */
-    const f=deep,sq=91/deep,ph=still?0:(ms/1500)%1;gx.lineWidth=1.3;
+    const f=deep,sq=91/deep,ph=still?0:(ms/2600)%1;gx.lineWidth=1.2;
     const line=(x1,y1,x2,y2,a)=>{gx.strokeStyle='rgba(0,200,255,'+a.toFixed(3)+')';gx.beginPath();gx.moveTo(x1,y1);gx.lineTo(x2,y2);gx.stroke();
       gx.strokeStyle='rgba(0,200,255,'+(a*.55).toFixed(3)+')';gx.beginPath();gx.moveTo(x1,2*hz-y1);gx.lineTo(x2,2*hz-y2);gx.stroke();};
-    for(let k=-160;k<=160;k++){const X=k*sq;line(cx,hz,cx+f*X/.5,hz+f/.5,.5);}
-    for(let n=0;n<400;n++){const Z=1+(n-ph)*sq;if(Z<=.05)continue;const y=hz+f/Z;if(y>H+2)continue;if(y-hz<.7)break;line(0,y,W,y,Math.min(.7,(y-hz)/deep*1.6));}
+    for(let k=-160;k<=160;k++){const X=k*sq;line(cx,hz,cx+f*X/.5,hz+f/.5,.34);}
+    for(let n=0;n<400;n++){const Z=1+(n-ph)*sq;if(Z<=.05)continue;const y=hz+f/Z;if(y>H+2)continue;if(y-hz<.7)break;line(0,y,W,y,Math.min(.5,(y-hz)/deep*1.2));}
     /* the horizon swallows the far lines: fade both halves into it */
     const d=Math.min(deep,110),dn=gx.createLinearGradient(0,hz,0,hz+d),up=gx.createLinearGradient(0,hz,0,hz-d);
     [dn,up].forEach(g=>{g.addColorStop(0,'rgba(0,0,0,.9)');g.addColorStop(1,'rgba(0,0,0,0)');});
