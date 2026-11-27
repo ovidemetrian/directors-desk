@@ -17,8 +17,7 @@
       ['Pre-show check','every link verified before the first cue']]},
     {k:'2 · 3',t:'The AI’s role',items:[
       ['Prepares','drafts the cues and crew tasks before the show'],
-      ['Verifies','checks every step and agrees the next one with the Director'],
-      ['Stays in its lane','nothing outside the show plan; the kill switches stay human']]},
+      ['Verifies','checks every step and agrees the next one with the Director']]},
     {k:'3 · 3',t:'Status',items:[
       ['Built','the desk, Crew Radio, the show box'],
       ['Next','a live test on a Q-SYS Core'],
