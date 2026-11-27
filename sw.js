@@ -1,4 +1,4 @@
-const C='desk-v41',F=['./','index.html','manifest.json','icon.svg','icon-192.png','icon-512.png','badge.css','badge.js','scenario.js','playbooks.js','radio.html','radio.js','radiolink.js','radiodesk.js','showflow.js','desk.js','rooms.js','preshow.js','theatre.js','grammar.js','sounds.js','showbox-client.js','showcase.js'];
+const C='desk-v42',F=['./','index.html','manifest.json','icon.svg','icon-192.png','icon-512.png','badge.css','badge.js','scenario.js','playbooks.js','radio.html','radio.js','radiolink.js','radiodesk.js','showflow.js','desk.js','rooms.js','preshow.js','theatre.js','grammar.js','sounds.js','showbox-client.js','showcase.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F)));self.skipWaiting();});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim();});
 /* Network first for the desk's own files, past the browser's own saved copy, so a fresh push shows on the very next open.

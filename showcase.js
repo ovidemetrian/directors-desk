@@ -18,7 +18,7 @@
       ['❓','ARE YOU SURE?','shows what the next GO will change, before you press it'],
       ['📱','Crew Radio','a silent walkie-talkie on every crew phone'],
       ['🎬','Show Flow','rundown → meeting → rehearsal → READY TO GO → live'],
-      ['📦','The show box','a local NUC server and a Q-SYS bridge over QRC']]},
+      ['📦','The show box','a local server and a Q-SYS bridge over QRC']]},
     {k:'Part 2 of 4',t:'Improvements',items:[
       ['💡','Lights joined in','one GO moves sound, cameras and lights together'],
       ['⛽','PRE-SHOW tank','every link checked and signed before the first button'],
