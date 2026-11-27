@@ -44,7 +44,7 @@
       ['🎭','Green Room','“Macbeth” in a cue is held, a ghost light stays on, “Break a leg”'],
       ['🐐','“Meeeh”','a goat answers a mistake (only when off air)'],
       ['🤫','Buzz, not squawk','crew phones vibrate instead of shouting in your ear']]},
-    {k:'Curtain up',end:true,t:'Break a leg.',s:'The tank shows next. Check the checklist first, then GO for a good show.'}
+    {k:'Curtain up',end:true,t:'Break<br>a leg.',s:'The tank shows next.<br>Check the checklist first,<br>then GO for a good show.'}
   ];
 
   const W=1000,H=1600; /* a regular (not extra-long) phone shape; the same picture on every screen */
@@ -66,7 +66,7 @@
 @keyframes scSpin{to{transform:rotate(360deg)}}
 .sc .sc-stage{position:relative;width:${W}px;height:${H}px;flex:none;transform-origin:center;border-radius:44px;
   background:rgba(10,12,28,.32);border:2px solid rgba(255,255,255,.22);box-shadow:0 30px 90px rgba(0,0,0,.35)}
-.sc .sc-pg{position:absolute;inset:0;padding:60px 70px 240px;display:flex;flex-direction:column;text-transform:uppercase;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
+.sc .sc-pg{position:absolute;inset:0;padding:60px 70px 240px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
 .sc .sc-pg.on{opacity:1;transform:none;pointer-events:auto}
 .sc .sc-pg.sc-out{transform:translateX(-60px)}
 .sc .sc-mark{margin:0 0 6px;font-family:var(--display);font-weight:700;font-size:84px;line-height:1;letter-spacing:-.01em;
@@ -74,17 +74,18 @@
 .sc .sc-mark small{display:block;margin-top:10px;font-family:var(--body);font-weight:500;font-size:26px;letter-spacing:.32em;text-transform:uppercase;color:#cfd3e6;-webkit-text-fill-color:#cfd3e6}
 .sc .sc-kick{font-family:var(--display);font-weight:600;font-size:32px;letter-spacing:.16em;text-transform:uppercase;color:#f4b322;margin:26px 0 8px}
 .sc h2{font-family:var(--display);font-weight:700;font-size:70px;line-height:1;margin:0 0 28px;letter-spacing:.01em}
-.sc .sc-cover .sc-mark{font-size:116px;margin-top:220px}
+.sc .sc-cover .sc-mark{font-size:116px}
 .sc .sc-cover h2{font-size:84px;margin-top:70px;line-height:1.05}
-.sc .sc-end h2{font-size:130px;margin-top:300px}
+.sc .sc-cover .sc-mark small{letter-spacing:.24em}
+.sc .sc-end h2{font-size:130px;line-height:1}
 .sc .sc-sub{font-size:40px;line-height:1.3;color:#e9e6f2;margin:0}
 .sc .sc-end .sc-sub{font-size:38px;max-width:800px}
-.sc ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.sc ul{list-style:none;margin:0;padding:0;display:grid;gap:11px;width:100%;text-align:left}
 .sc li{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:20px;padding:12px 22px;border-radius:18px;background:rgba(10,12,28,.28);border:1px solid rgba(255,255,255,.16)}
 .sc li i{font-style:normal;font-size:46px;text-align:center}
 .sc li b{display:block;font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:.02em;line-height:1.05}
 .sc li span{display:block;font-size:24px;line-height:1.25;letter-spacing:.02em;color:#eef0fa}
-.sc .sc-credit{position:absolute;left:70px;bottom:270px;font-size:28px;color:#cfd3e6;margin:0}
+.sc .sc-credit{position:absolute;left:0;right:0;text-align:center;bottom:270px;font-size:28px;color:#cfd3e6;margin:0}
 .sc .sc-dots{position:absolute;left:0;right:0;bottom:200px;display:flex;justify-content:center;gap:16px}
 .sc .sc-dots b{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.28)}
 .sc .sc-dots b.on{background:#f4b322;box-shadow:0 0 14px #f4b322}
