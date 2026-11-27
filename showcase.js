@@ -93,9 +93,11 @@
 .sc .sc-dots b{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.28)}
 .sc .sc-dots b.on{background:#f4b322;box-shadow:0 0 14px #f4b322}
 .sc .sc-keys{position:absolute;left:90px;right:90px;bottom:56px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px}
-.sc .sc-key{height:96px;border:2px solid rgba(255,255,255,.35);border-radius:26px;color:#fff;font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.04em;text-transform:uppercase;line-height:1.05;padding:0 10px;cursor:pointer;text-shadow:0 2px 3px rgba(0,0,0,.5);
+.sc .sc-key{height:96px;border:2px solid rgba(255,255,255,.35);border-radius:26px;color:#fff;font-family:var(--display);font-weight:700;font-size:40px;letter-spacing:.04em;text-transform:uppercase;line-height:1.05;padding:0 8px;white-space:nowrap;cursor:pointer;text-shadow:0 2px 3px rgba(0,0,0,.5);
   box-shadow:0 9px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 18px 30px rgba(0,0,0,.5);transform:translateY(0);transition:transform .08s,box-shadow .08s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .sc .sc-key:active,.sc .sc-key.sc-down{transform:translateY(8px);border-color:#fff;box-shadow:0 1px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 0 44px 6px rgba(255,255,255,.75)}
+/* pause: two plain bars drawn in the text colour, not an icon */
+.sc .sc-pz{display:inline-block;width:24px;height:30px;margin-right:12px;border-left:8px solid currentColor;border-right:8px solid currentColor;box-sizing:border-box;vertical-align:-2px}
 .sc .sc-key.red{background:linear-gradient(180deg,rgba(163,16,43,.82),rgba(116,9,28,.82))}
 .sc .sc-key.org{background:linear-gradient(180deg,rgba(244,179,34,.82),rgba(217,122,6,.82))}
 .sc .sc-key.blu{background:linear-gradient(180deg,rgba(26,67,176,.82),rgba(13,42,120,.82))}
@@ -119,7 +121,7 @@
   sc.innerHTML=`${bg}<div class="sc-stage">${PAGES.map(pageHTML).join('')}
 <div class="sc-bar"><i id="scBar"></i></div>
 <div class="sc-dots">${PAGES.map(()=>'<b></b>').join('')}</div>
-<div class="sc-keys"><button type="button" class="sc-key red" id="scBack">‹ Back</button><button type="button" class="sc-key org" id="scMid"></button><button type="button" class="sc-key blu" id="scNext">Next ›</button></div></div>`;
+<div class="sc-keys"><button type="button" class="sc-key red" id="scBack">Back</button><button type="button" class="sc-key org" id="scMid"></button><button type="button" class="sc-key blu" id="scNext">Next</button></div></div>`;
 
   const mount=()=>{document.body.append(sc);fit();show(0);raf=requestAnimationFrame(tick);setTimeout(()=>{try{$m('#scNext').focus();}catch(_){}},60);};
   const $m=s=>sc.querySelector(s);
@@ -159,9 +161,10 @@
     sc.querySelectorAll('.sc-pg').forEach((el,j)=>{el.classList.toggle('on',j===cur);el.classList.toggle('sc-out',j<cur);el.setAttribute('aria-hidden',j===cur?'false':'true');});
     sc.querySelectorAll('.sc-dots b').forEach((d,j)=>d.classList.toggle('on',j===cur));
     const p=PAGES[cur],back=$m('#scBack'),mid=$m('#scMid'),next=$m('#scNext');
-    back.textContent='‹ Back';
-    if(p.end){mid.textContent='▶ 60s show';next.textContent='Open desk';}
-    else{mid.textContent=playing?'⏸ Pause':'▶ Play';next.textContent='Next ›';}
+    back.textContent='Back';
+    mid.style.fontSize=next.style.fontSize=p.end?'34px':''; /* the two longer last-page labels still fit on one line */
+    if(p.end){mid.textContent='60s show';next.textContent='Open desk';}
+    else{mid.innerHTML=playing?'<i class="sc-pz" aria-hidden="true"></i>Pause':'Play';next.textContent='Next';}
   }
   function close(then){
     try{sessionStorage.setItem('desk.showcase','1');}catch(_){}
