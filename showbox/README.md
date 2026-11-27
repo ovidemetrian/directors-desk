@@ -38,7 +38,7 @@ Concept & design: Ovi Demetrian · built with Claude
 
 ---
 
-## First time on the NUC (Ubuntu)
+## First time on the NUC (EpicOS)
 
 ```sh
 sudo adduser --disabled-password show && sudo -iu show

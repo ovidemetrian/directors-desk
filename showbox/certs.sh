@@ -2,7 +2,7 @@
 # Director's Desk · SHOW BOX · certificates
 # Makes the box its own small certificate authority (once), then a server certificate for the box's address.
 # Devices trust the CA once (http://<box>:8080/), then the Desk and Crew Radio run on real HTTPS: installable, mic allowed.
-# Usage: ./certs.sh 192.168.50.10 [showbox.local]      Works on the NUC (Ubuntu) and in Termux (pkg install openssl-tool).
+# Usage: ./certs.sh 192.168.50.10 [showbox.local]      Works on the NUC (EpicOS) and in Termux (pkg install openssl-tool).
 set -eu
 IP="${1:?give the box address, e.g. 192.168.50.10}"; NAME="${2:-showbox.local}"
 cd "$(dirname "$0")"; mkdir -p certs; chmod 700 certs; cd certs

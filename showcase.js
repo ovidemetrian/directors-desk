@@ -8,15 +8,15 @@
 
   const PAGES=[
     {k:'Director\'s Desk',cover:true,
-     t:'The whole show<br>on one desk',
-     s:'HUSH stays human'},
+     t:'You call<br>the show<br><em>Claude runs<br>the board</em>',
+     s:'The off switch stays human'},
     {k:'Part 1 of 4',t:'What we built',items:[
       ['🎛','The Desk','sound, cameras, lights and stream on one tablet'],
       ['🤖','Claude operates','sound, cameras and lights, on the Director’s GO'],
       ['🔀','The AI switch','OFF · WATCH · ON, and only the Director turns it up'],
       ['📱','Crew Radio','a silent walkie-talkie on every crew phone'],
       ['🎬','Show Flow','rundown → meeting → rehearsal → READY TO GO → live'],
-      ['📦','The show box','a local server on Epic OS, with a Q-SYS bridge over QRC']]},
+      ['📦','The show box','a local server on EpicOS, with a Q-SYS bridge over QRC']]},
     {k:'Part 2 of 4',t:'Improvements',items:[
       ['💡','Lights joined in','one GO moves sound, cameras and lights together'],
       ['⛽','PRE-SHOW tank','every link checked and signed before the first button'],
@@ -34,10 +34,10 @@
       ['🔑','The content is the key','a system from Media Content Delivery']]},
     {k:'Part 4 of 4',t:'Why trust AI<br>with a live show',items:[
       ['📦','No internet, show goes on','its own local server runs the whole show, no cloud needed'],
-      ['🖥','Its own operating system','Epic OS, built on Ubuntu for one job: the show'],
+      ['🖥','Its own operating system','EpicOS, built for one job: the show'],
       ['📖','It never improvises','only the commands written for this show’s own gear'],
       ['🧾','Every move read back','each change confirmed, timed and signed: human or Claude'],
-      ['✋','Hands off the kill switches','HUSH and Blackout stay human; Claude can’t reach them'],
+      ['✋','Hands off the kill switches','mute-all and blackout stay human; Claude can’t reach them'],
       ['❓','The next GO, shown first','ARE YOU SURE? shows what will change before you press it'],
       ['🎤','Artist talks, desk cues','“band in at 1:30” becomes sound, light and camera cues']]},
     {k:'Curtain up',end:true,t:''}
@@ -73,7 +73,8 @@
 .sc .sc-list li{padding:10px 22px}
 .sc .sc-list li b{font-size:46px}
 .sc .sc-list li span{font-size:38px;line-height:1.12;letter-spacing:0}
-.sc .sc-cover h2{font-size:86px;margin-top:90px;line-height:1.05}
+.sc .sc-cover h2{font-size:96px;margin-top:80px;line-height:1.02}
+.sc .sc-cover h2 em{display:block;margin-top:34px;font-style:normal;color:#8fe9ff;text-shadow:0 0 28px rgba(0,190,255,.45)}
 .sc .sc-cover .sc-mark small{letter-spacing:.24em}
 .sc .sc-pg.sc-end .sc-corner{font-size:156px;line-height:.98;margin:0}
 .sc .sc-end .sc-kick{display:none}
