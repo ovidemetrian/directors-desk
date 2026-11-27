@@ -10,36 +10,26 @@
     {k:'Director\'s Desk',cover:true,
      t:'The whole show<br>on one desk<em>Sound · Cameras<br>Lights · Crew</em>',
      s:'Its own EpicOS show box<br>No internet needed'},
-    {k:'Part 1 of 4',t:'What we built',items:[
+    {k:'Part 1 of 3',t:'How it works',items:[
       ['🎛','The Desk','sound, cameras, lights and stream on one tablet'],
-      ['🤖','Claude operates','sound, cameras and lights, on the Director’s GO'],
+      ['📦','The show box','a local server on EpicOS: the show runs offline'],
+      ['📱','Crew Radio','silent messages on every crew phone, no radio chatter'],
+      ['🎬','Show Flow','rundown → rehearsal → ready → live'],
+      ['⛽','PRE-SHOW check','every link tested and signed before the first cue'],
+      ['🔁','Tablet dropped? Show goes on','the box holds the show; scan your code on any spare device']]},
+    {k:'Part 2 of 3',t:'Where the AI fits',items:[
+      ['📝','Before the show','Claude drafts the cues and each crew member’s tasks'],
+      ['👁','During the show','the desk runs the cues itself; Claude only watches and suggests'],
       ['🔀','The AI switch','OFF · WATCH · ON, and only the Director turns it up'],
-      ['📱','Crew Radio','a silent walkie-talkie on every crew phone'],
-      ['🎬','Show Flow','rundown → meeting → rehearsal → READY TO GO → live'],
-      ['📦','The show box','a local server on EpicOS, with a Q-SYS bridge over QRC']]},
-    {k:'Part 2 of 4',t:'Improvements',items:[
-      ['💡','Lights joined in','one GO moves sound, cameras and lights together'],
-      ['⛽','PRE-SHOW tank','every link checked and signed before the first button'],
-      ['🔔','A sound language','OK · NO · ATTENTION · WARNING, so you can work by ear'],
-      ['🏢','Rooms fleet','CollabOS rooms across offices; Claude proposes, a human approves'],
-      ['☁️','Cloud down, show on','platform failover, learned from the Microsoft outage'],
-      ['🎸','Show styles','Boardroom 16 to Arena 2,000; Business, Rock, Jazz, Theatre'],
-      ['📋','Role playbooks','each phone gets only its own tasks, with the reason for each']]},
-    {k:'Part 3 of 4',t:'How it scales',items:[
-      ['👔','Boardroom · 16','one screen'],
-      ['🎤','Hall · 200','one to three screens'],
-      ['🏟','Venue · 2,000','six screens plus a wall, with crews and remote sites'],
-      ['🔌','Q-SYS today','the same grammar can drive any brand’s gear tomorrow'],
-      ['🌐','Every meeting room','one fleet, one director, Claude watching the faults'],
-      ['🔑','The content is the key','a system from Media Content Delivery']]},
-    {k:'Part 4 of 4',t:'Why trust AI<br>with a live show',items:[
-      ['📦','No internet, show goes on','its own local server runs the whole show, no cloud needed'],
-      ['🖥','Its own operating system','EpicOS, built for one job: the show'],
       ['📖','It never improvises','only the commands written for this show’s own gear'],
-      ['🧾','Every move read back','each change confirmed, timed and signed: human or Claude'],
-      ['✋','Hands off the kill switches','mute-all and blackout stay human; Claude can’t reach them'],
-      ['❓','The next GO, shown first','ARE YOU SURE? shows what will change before you press it'],
-      ['🎤','Artist talks, desk cues','“band in at 1:30” becomes sound, light and camera cues']]},
+      ['🧾','Every move read back','each change confirmed and logged: human or Claude'],
+      ['✋','Hands off the kill switches','mute-all and blackout stay human; Claude can’t reach them']]},
+    {k:'Part 3 of 3',t:'Where it stands',items:[
+      ['✅','Tested','the desk, Crew Radio and the show box, on a simulated Q-SYS Core'],
+      ['🎯','Next','the desk driving a Q-SYS Core in Q-SYS Designer'],
+      ['🔴','Then','a physical mute-all button, and a first real show'],
+      ['🖥','Later','more screens, meeting-room fleets, other brands’ gear'],
+      ['🔑','The content is the key','a system from Media Content Delivery']]},
     {k:'Curtain up',end:true,t:''}
   ];
 
@@ -108,7 +98,7 @@
 
   const esc=s=>s;
   const pageHTML=(p,i)=>{
-    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}${p.items?' sc-list':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk</p>':'<p class="sc-mark sc-corner">Director\'s Desk'+(p.end?'<small>Human directs · Claude operates</small>':'')+'</p><p class="sc-kick">'+esc(p.k)+'</p>')+(p.t?`<h2>${p.t}</h2>`:'');
+    let h=`<section class="sc-pg${p.cover?' sc-cover':''}${p.end?' sc-end':''}${p.items?' sc-list':''}" data-i="${i}" aria-hidden="true">`+(p.cover?'<p class="sc-mark">Director\'s Desk</p>':'<p class="sc-mark sc-corner">Director\'s Desk'+(p.end?'<small>Human directs · Claude assists</small>':'')+'</p><p class="sc-kick">'+esc(p.k)+'</p>')+(p.t?`<h2>${p.t}</h2>`:'');
     if(p.s)h+=`<p class="sc-sub">${p.s}</p>`;
     if(p.items)h+='<ul>'+p.items.map(([e,b,s])=>`<li><i aria-hidden="true">${e}</i><div><b>${b}</b><span>${s}</span></div></li>`).join('')+'</ul>';
     if(p.end)h+='<p class="sc-credit">Concept &amp; design: Ovi Demetrian</p>';
