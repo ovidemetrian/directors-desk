@@ -10,7 +10,7 @@
     {k:'Director\'s Desk',cover:true,
      t:'The whole show<br>on one desk.',
      s:'HUSH stays human.'},
-    {k:'1 · What we built',t:'What we built',items:[
+    {k:'Part 1 of 4',t:'What we built',items:[
       ['🎛','The Desk','sound, cameras, lights and stream on one tablet'],
       ['🤖','Claude operates','every change read back, so you know it happened'],
       ['✋','HUSH and Blackout','human hands only; the AI can’t touch them'],
@@ -19,7 +19,7 @@
       ['📱','Crew Radio','a silent walkie-talkie on every crew phone'],
       ['🎬','Show Flow','rundown → meeting → rehearsal → READY TO GO → live'],
       ['📦','The show box','a local NUC server and a Q-SYS bridge over QRC']]},
-    {k:'2 · How it got better',t:'Improvements',items:[
+    {k:'Part 2 of 4',t:'Improvements',items:[
       ['💡','Lights joined in','one GO moves sound, cameras and lights together'],
       ['⛽','PRE-SHOW tank','every link checked and signed before the first button'],
       ['📖','Show Grammar','exact commands from the show’s gear, no guessing'],
@@ -28,7 +28,7 @@
       ['☁️','Cloud down, show on','platform failover, learned from the Microsoft outage'],
       ['🎸','Show styles','Boardroom 16 to Arena 2,000; Business, Rock, Jazz, Theatre'],
       ['📋','Role playbooks','each phone gets only its own tasks, with the reason for each']]},
-    {k:'3 · Taking over AV',t:'How it scales',items:[
+    {k:'Part 3 of 4',t:'How it scales',items:[
       ['👔','Boardroom · 16','one screen'],
       ['🎤','Hall · 200','one to three screens'],
       ['🏟','Venue · 2,000','six screens plus a wall, with crews and remote sites'],
@@ -36,7 +36,7 @@
       ['🌐','Every meeting room','one fleet, one director, Claude watching the faults'],
       ['🛡','Local first','the show path never needs the internet'],
       ['🔑','The content is the key','a system from Media Content Delivery']]},
-    {k:'4 · Unique and cool',t:'Why it’s different',items:[
+    {k:'Part 4 of 4',t:'Why it’s different',items:[
       ['🎚','Made by an operator','designed by someone who has run the switcher, not by a lab'],
       ['🤝','AI as crew','Claude is a crew member, never the boss'],
       ['🔧','A transistor less','one dependency less means one less possible defect'],
@@ -63,8 +63,8 @@
 @keyframes scLavaB{to{transform:translate3d(-10vmax,-7vmax,0)}}
 @keyframes scSpin{to{transform:rotate(360deg)}}
 .sc .sc-stage{position:relative;width:${W}px;height:${H}px;flex:none;transform-origin:center;border-radius:44px;
-  background:rgba(10,12,28,.7);border:2px solid rgba(255,255,255,.18);box-shadow:0 40px 120px rgba(0,0,0,.6)}
-.sc .sc-pg{position:absolute;inset:0;padding:60px 70px 270px;display:flex;flex-direction:column;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
+  background:rgba(10,12,28,.32);border:2px solid rgba(255,255,255,.22);box-shadow:0 30px 90px rgba(0,0,0,.35)}
+.sc .sc-pg{position:absolute;inset:0;padding:60px 70px 240px;display:flex;flex-direction:column;text-transform:uppercase;opacity:0;transform:translateX(60px);transition:opacity .6s ease,transform .6s ease;pointer-events:none}
 .sc .sc-pg.on{opacity:1;transform:none;pointer-events:auto}
 .sc .sc-pg.sc-out{transform:translateX(-60px)}
 .sc .sc-mark{margin:0 0 6px;font-family:var(--display);font-weight:700;font-size:84px;line-height:1;letter-spacing:-.01em;
@@ -72,28 +72,28 @@
 .sc .sc-mark small{display:block;margin-top:10px;font-family:var(--body);font-weight:500;font-size:26px;letter-spacing:.32em;text-transform:uppercase;color:#cfd3e6;-webkit-text-fill-color:#cfd3e6}
 .sc .sc-kick{font-family:var(--display);font-weight:600;font-size:32px;letter-spacing:.16em;text-transform:uppercase;color:#f4b322;margin:26px 0 8px}
 .sc h2{font-family:var(--display);font-weight:700;font-size:70px;line-height:1;margin:0 0 28px;letter-spacing:.01em}
-.sc .sc-cover .sc-mark{font-size:150px;margin-top:220px}
+.sc .sc-cover .sc-mark{font-size:116px;margin-top:220px}
 .sc .sc-cover h2{font-size:84px;margin-top:70px;line-height:1.05}
-.sc .sc-end h2{font-size:150px;margin-top:300px}
+.sc .sc-end h2{font-size:130px;margin-top:300px}
 .sc .sc-sub{font-size:40px;line-height:1.3;color:#e9e6f2;margin:0}
 .sc .sc-end .sc-sub{font-size:38px;max-width:800px}
 .sc ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
-.sc li{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:20px;padding:12px 22px;border-radius:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.sc li{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:20px;padding:12px 22px;border-radius:18px;background:rgba(10,12,28,.28);border:1px solid rgba(255,255,255,.16)}
 .sc li i{font-style:normal;font-size:46px;text-align:center}
 .sc li b{display:block;font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:.02em;line-height:1.05}
-.sc li span{display:block;font-size:26px;line-height:1.25;color:#d6daee}
-.sc .sc-credit{position:absolute;left:70px;bottom:300px;font-size:28px;color:#cfd3e6;margin:0}
-.sc .sc-dots{position:absolute;left:0;right:0;bottom:232px;display:flex;justify-content:center;gap:16px}
+.sc li span{display:block;font-size:24px;line-height:1.25;letter-spacing:.02em;color:#eef0fa}
+.sc .sc-credit{position:absolute;left:70px;bottom:270px;font-size:28px;color:#cfd3e6;margin:0}
+.sc .sc-dots{position:absolute;left:0;right:0;bottom:200px;display:flex;justify-content:center;gap:16px}
 .sc .sc-dots b{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.28)}
 .sc .sc-dots b.on{background:#f4b322;box-shadow:0 0 14px #f4b322}
-.sc .sc-keys{position:absolute;left:50px;right:50px;bottom:56px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
-.sc .sc-key{height:136px;border:2px solid rgba(255,255,255,.35);border-radius:26px;color:#fff;font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:.04em;text-transform:uppercase;line-height:1.05;padding:0 14px;cursor:pointer;text-shadow:0 2px 3px rgba(0,0,0,.5);
-  box-shadow:0 12px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 18px 30px rgba(0,0,0,.5);transform:translateY(0);transition:transform .08s,box-shadow .08s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.sc .sc-key:active,.sc .sc-key.sc-down{transform:translateY(11px);border-color:#fff;box-shadow:0 1px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 0 44px 6px rgba(255,255,255,.75)}
+.sc .sc-keys{position:absolute;left:90px;right:90px;bottom:56px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px}
+.sc .sc-key{height:96px;border:2px solid rgba(255,255,255,.35);border-radius:26px;color:#fff;font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.04em;text-transform:uppercase;line-height:1.05;padding:0 10px;cursor:pointer;text-shadow:0 2px 3px rgba(0,0,0,.5);
+  box-shadow:0 9px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 18px 30px rgba(0,0,0,.5);transform:translateY(0);transition:transform .08s,box-shadow .08s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.sc .sc-key:active,.sc .sc-key.sc-down{transform:translateY(8px);border-color:#fff;box-shadow:0 1px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 0 44px 6px rgba(255,255,255,.75)}
 .sc .sc-key.red{background:linear-gradient(180deg,#a3102b,#74091c)}
 .sc .sc-key.org{background:linear-gradient(180deg,#f4b322,#d97a06)}
 .sc .sc-key.blu{background:linear-gradient(180deg,#1a43b0,#0d2a78)}
-.sc .sc-bar{position:absolute;left:70px;right:70px;bottom:206px;height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
+.sc .sc-bar{position:absolute;left:90px;right:90px;bottom:176px;height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
 .sc .sc-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f4b322,#fff,#8fb3ff)}
 @media (prefers-reduced-motion:reduce){.sc .lv,.sc .ry{animation:none}.sc .sc-pg{transition:none}}
 `;
@@ -120,7 +120,7 @@
   const mount=()=>{document.body.append(sc);fit();show(0);raf=requestAnimationFrame(tick);setTimeout(()=>{try{$m('#scNext').focus();}catch(_){}},60);};
   const $m=s=>sc.querySelector(s);
   const stage=()=>sc.querySelector('.sc-stage');
-  function fit(){const s=Math.min(innerWidth/W,innerHeight/H)*.97;stage().style.transform='scale('+s+')';}
+  function fit(){const s=Math.min(innerWidth*.84/W,innerHeight*.93/H);stage().style.transform='scale('+s+')';}
   addEventListener('resize',fit);
 
   /* The story plays by itself and loops forever: page after page, back to the start. The keys only steer it.
@@ -139,7 +139,7 @@
     sc.querySelectorAll('.sc-dots b').forEach((d,j)=>d.classList.toggle('on',j===cur));
     const p=PAGES[cur],back=$m('#scBack'),mid=$m('#scMid'),next=$m('#scNext');
     back.textContent='‹ Back';
-    if(p.end){mid.textContent='▶ The 60-second show';next.textContent='Open the desk';}
+    if(p.end){mid.textContent='▶ 60s show';next.textContent='Open desk';}
     else{mid.textContent=playing?'⏸ Pause':'▶ Play';next.textContent='Next ›';}
   }
   function close(then){
