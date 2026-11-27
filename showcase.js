@@ -19,7 +19,7 @@
       ['🔁','Tablet dropped? Show goes on','the box holds the show; scan your code on any spare device']]},
     {k:'Part 2 of 3',t:'Where the AI fits',items:[
       ['📝','Before the show','Claude drafts the cues and each crew member’s tasks'],
-      ['👁','During the show','the desk runs the cues itself; Claude only watches and suggests'],
+      ['✔️','During the show','the desk runs the cues; Claude verifies, and settles the next step with the Director'],
       ['🔀','The AI switch','OFF · WATCH · ON, and only the Director turns it up'],
       ['📖','It never improvises','only the commands written for this show’s own gear'],
       ['🧾','Every move read back','each change confirmed and logged: human or Claude'],
