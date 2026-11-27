@@ -83,19 +83,18 @@
 .sc li b{display:block;font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:.02em;line-height:1.05}
 .sc li span{display:block;font-size:26px;line-height:1.25;color:#d6daee}
 .sc .sc-credit{position:absolute;left:70px;bottom:300px;font-size:28px;color:#cfd3e6;margin:0}
-.sc .sc-dots{position:absolute;left:0;right:0;bottom:222px;display:flex;justify-content:center;gap:16px}
+.sc .sc-dots{position:absolute;left:0;right:0;bottom:232px;display:flex;justify-content:center;gap:16px}
 .sc .sc-dots b{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.28)}
 .sc .sc-dots b.on{background:#f4b322;box-shadow:0 0 14px #f4b322}
 .sc .sc-keys{position:absolute;left:50px;right:50px;bottom:56px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
 .sc .sc-key{height:136px;border:2px solid rgba(255,255,255,.35);border-radius:26px;color:#fff;font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:.04em;text-transform:uppercase;line-height:1.05;padding:0 14px;cursor:pointer;text-shadow:0 2px 3px rgba(0,0,0,.5);
   box-shadow:0 12px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 18px 30px rgba(0,0,0,.5);transform:translateY(0);transition:transform .08s,box-shadow .08s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.sc .sc-key:active,.sc .sc-key.sc-down{transform:translateY(11px);box-shadow:0 1px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.25),0 4px 10px rgba(0,0,0,.4)}
+.sc .sc-key:active,.sc .sc-key.sc-down{transform:translateY(11px);border-color:#fff;box-shadow:0 1px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 0 44px 6px rgba(255,255,255,.75)}
 .sc .sc-key.red{background:linear-gradient(180deg,#a3102b,#74091c)}
 .sc .sc-key.org{background:linear-gradient(180deg,#f4b322,#d97a06)}
 .sc .sc-key.blu{background:linear-gradient(180deg,#1a43b0,#0d2a78)}
-.sc .sc-key.sc-glow{border-color:#fff;box-shadow:0 12px 0 rgba(0,0,0,.6),inset 0 3px 0 rgba(255,255,255,.35),0 0 40px rgba(244,179,34,.85)}
-.sc .sc-key[disabled]{opacity:.4;cursor:default}
-.sc .sc-skip{position:absolute;top:34px;right:38px;background:none;border:0;color:#cfd3e6;font-size:28px;cursor:pointer;padding:8px 12px}
+.sc .sc-bar{position:absolute;left:70px;right:70px;bottom:206px;height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
+.sc .sc-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f4b322,#fff,#8fb3ff)}
 @media (prefers-reduced-motion:reduce){.sc .lv,.sc .ry{animation:none}.sc .sc-pg{transition:none}}
 `;
   const st=document.createElement('style');st.textContent=css;document.head.append(st);
@@ -114,40 +113,47 @@
 
   const sc=document.createElement('div');sc.className='sc';sc.setAttribute('role','dialog');sc.setAttribute('aria-modal','true');sc.setAttribute('aria-label','Director\'s Desk: the story');
   sc.innerHTML=`${bg}<div class="sc-stage">${PAGES.map(pageHTML).join('')}
-<button type="button" class="sc-skip" id="scSkip">Skip ›</button>
+<div class="sc-bar"><i id="scBar"></i></div>
 <div class="sc-dots">${PAGES.map(()=>'<b></b>').join('')}</div>
 <div class="sc-keys"><button type="button" class="sc-key red" id="scBack">‹ Back</button><button type="button" class="sc-key org" id="scMid"></button><button type="button" class="sc-key blu" id="scNext">Next ›</button></div></div>`;
 
-  const mount=()=>{document.body.append(sc);fit();show(0);setTimeout(()=>{try{$m('#scNext').focus();}catch(_){}},60);};
+  const mount=()=>{document.body.append(sc);fit();show(0);raf=requestAnimationFrame(tick);setTimeout(()=>{try{$m('#scNext').focus();}catch(_){}},60);};
   const $m=s=>sc.querySelector(s);
   const stage=()=>sc.querySelector('.sc-stage');
   function fit(){const s=Math.min(innerWidth/W,innerHeight/H)*.97;stage().style.transform='scale('+s+')';}
   addEventListener('resize',fit);
 
-  let cur=0;
+  /* The story plays by itself and loops forever: page after page, back to the start. The keys only steer it.
+     No skip anywhere: the way into the desk is at the end of the story. */
+  let cur=0,playing=true,t0=0,raf=0;
+  const N=PAGES.length,wrap=i=>(i%N+N)%N,DUR=i=>PAGES[i].items?9000:6000;
+  function tick(now){
+    if(!t0)t0=now;
+    const p=Math.min(1,(now-t0)/DUR(cur)),bar=$m('#scBar');if(bar)bar.style.width=(playing?p*100:0).toFixed(1)+'%';
+    if(playing&&p>=1)show(cur+1);
+    raf=requestAnimationFrame(tick);
+  }
   function show(i){
-    cur=Math.max(0,Math.min(PAGES.length-1,i));
+    cur=wrap(i);t0=0;
     sc.querySelectorAll('.sc-pg').forEach((el,j)=>{el.classList.toggle('on',j===cur);el.classList.toggle('sc-out',j<cur);el.setAttribute('aria-hidden',j===cur?'false':'true');});
     sc.querySelectorAll('.sc-dots b').forEach((d,j)=>d.classList.toggle('on',j===cur));
     const p=PAGES[cur],back=$m('#scBack'),mid=$m('#scMid'),next=$m('#scNext');
-    back.disabled=cur===0;
-    if(p.end){back.textContent='‹ Back';mid.textContent='▶ The 60-second show';next.textContent='Open the desk';}
-    else{back.textContent='‹ Back';mid.textContent=cur===0?'▶ Start the story':'Skip to the desk';next.textContent='Next ›';}
-    [back,mid,next].forEach(k=>k.classList.remove('sc-glow'));(cur===0?mid:p.end?mid:next).classList.add('sc-glow');
+    back.textContent='‹ Back';
+    if(p.end){mid.textContent='▶ The 60-second show';next.textContent='Open the desk';}
+    else{mid.textContent=playing?'⏸ Pause':'▶ Play';next.textContent='Next ›';}
   }
   function close(then){
     try{sessionStorage.setItem('desk.showcase','1');}catch(_){}
-    removeEventListener('resize',fit);removeEventListener('keydown',keys);sc.remove();
+    cancelAnimationFrame(raf);removeEventListener('resize',fit);removeEventListener('keydown',keys);sc.remove();
     const ic=document.getElementById('introCard'),open=ic&&!ic.hidden;
     if(then==='demo'){const b=open?document.getElementById('introPlay'):document.getElementById('demoBtn');if(b)b.click();}
     else if(open){const s=document.getElementById('introSkip');if(s)s.click();}
   }
   $m('#scBack').onclick=()=>show(cur-1);
   $m('#scNext').onclick=()=>PAGES[cur].end?close('desk'):show(cur+1);
-  $m('#scMid').onclick=()=>PAGES[cur].end?close('demo'):cur===0?show(1):close('desk');
-  $m('#scSkip').onclick=()=>close('desk');
+  $m('#scMid').onclick=()=>{if(PAGES[cur].end)return close('demo');playing=!playing;t0=0;show(cur);};
   sc.querySelectorAll('.sc-key').forEach(k=>{k.addEventListener('pointerdown',()=>k.classList.add('sc-down'));['pointerup','pointercancel','pointerleave'].forEach(ev=>k.addEventListener(ev,()=>k.classList.remove('sc-down')));});
-  function keys(e){if(e.key==='ArrowRight')show(cur+1);else if(e.key==='ArrowLeft')show(cur-1);else if(e.key==='Escape')close('desk');}
+  function keys(e){if(e.key==='ArrowRight')show(cur+1);else if(e.key==='ArrowLeft')show(cur-1);}
   addEventListener('keydown',keys);
   let x0=null;sc.addEventListener('pointerdown',e=>{if(!e.target.closest('button'))x0=e.clientX;});
   sc.addEventListener('pointerup',e=>{if(x0==null)return;const dx=e.clientX-x0;x0=null;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1));});
