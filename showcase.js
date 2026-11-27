@@ -78,8 +78,8 @@
 /* List pages: the name in the top-left corner, the count top-right, and the list fills everything down to the keys */
 .sc .sc-corner{position:absolute;top:30px;left:34px;margin:0;font-size:62px}
 .sc .sc-pg:not(.sc-list) .sc-corner{position:static;font-size:72px}
-.sc .sc-list{justify-content:flex-start;padding:112px 30px 228px}
-.sc .sc-list .sc-kick{top:50px;right:40px}
+.sc .sc-list{justify-content:flex-start;padding:112px 30px 252px}
+.sc .sc-list .sc-kick{top:47px;right:40px;line-height:1}
 .sc .sc-list h2{margin:0 0 16px;font-size:84px}
 .sc .sc-list ul{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
 .sc .sc-list li{flex:1 1 auto}
@@ -134,7 +134,9 @@
   const mount=()=>{document.body.append(sc);fit();show(0);raf=requestAnimationFrame(tick);setTimeout(()=>{try{$m('#scNext').focus();}catch(_){}},60);};
   const $m=s=>sc.querySelector(s);
   const stage=()=>sc.querySelector('.sc-stage');
-  function fit(){const s=Math.min(innerWidth*.84/W,innerHeight*.93/H);stage().style.transform='scale('+s+')';}
+  function fit(){const s=Math.min(innerWidth*.84/W,innerHeight*.93/H);stage().style.transform='scale('+s+')';
+    /* keep the sparkles out from behind the glass: they read like stray dots on the text */
+    const r=stage().getBoundingClientRect(),sp=sc.querySelector('.sp');if(sp)sp.style.clipPath=`path(evenodd,'M0 0H${innerWidth}V${innerHeight}H0Z M${r.left} ${r.top}H${r.right}V${r.bottom}H${r.left}Z')`;}
   addEventListener('resize',fit);
 
   /* The story plays by itself and loops forever: page after page, back to the start. The keys only steer it.
