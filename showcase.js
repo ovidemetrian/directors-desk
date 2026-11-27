@@ -8,15 +8,15 @@
 
   const PAGES=[
     {k:'Director\'s Desk',cover:true,
-     t:'The whole show<br>on one desk.',
-     s:'HUSH stays human.'},
+     t:'The whole show<br>on one desk',
+     s:'HUSH stays human'},
     {k:'Part 1 of 4',t:'What we built',items:[
       ['🎛','The Desk','sound, cameras, lights and stream on one tablet'],
       ['🤖','Claude operates','sound, cameras and lights, on the Director’s GO'],
       ['🔀','The AI switch','OFF · WATCH · ON, and only the Director turns it up'],
       ['📱','Crew Radio','a silent walkie-talkie on every crew phone'],
       ['🎬','Show Flow','rundown → meeting → rehearsal → READY TO GO → live'],
-      ['📦','The show box','a local server and a Q-SYS bridge over QRC']]},
+      ['📦','The show box','a local server on Epic OS, with a Q-SYS bridge over QRC']]},
     {k:'Part 2 of 4',t:'Improvements',items:[
       ['💡','Lights joined in','one GO moves sound, cameras and lights together'],
       ['⛽','PRE-SHOW tank','every link checked and signed before the first button'],
@@ -31,10 +31,11 @@
       ['🏟','Venue · 2,000','six screens plus a wall, with crews and remote sites'],
       ['🔌','Q-SYS today','the same grammar can drive any brand’s gear tomorrow'],
       ['🌐','Every meeting room','one fleet, one director, Claude watching the faults'],
-      ['💻','Any small computer','the show box runs on a small PC, no special hardware'],
+      ['💻','Any small computer','Epic OS turns a small PC into the show box, no special hardware'],
       ['🔑','The content is the key','a system from Media Content Delivery']]},
     {k:'Part 4 of 4',t:'Why trust AI<br>with a live show',items:[
       ['📦','No internet, show goes on','its own local server runs the whole show, no cloud needed'],
+      ['🖥','Its own operating system','Epic OS, built on Ubuntu for one job: the show'],
       ['📖','It never improvises','only the commands written for this show’s own gear'],
       ['🧾','Every move read back','each change confirmed, timed and signed: human or Claude'],
       ['✋','Hands off the kill switches','HUSH and Blackout stay human; Claude can’t reach them'],
